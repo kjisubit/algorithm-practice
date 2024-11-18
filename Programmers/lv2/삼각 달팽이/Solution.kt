@@ -1,5 +1,3 @@
-package org.example.kotlintest
-
 // 2차원 배열 문제 -> 좌표 변화량으로 해결
 // n * n 크기 어레이 생성
 // 방향전환(아래, 우측, 상단좌측) 반복

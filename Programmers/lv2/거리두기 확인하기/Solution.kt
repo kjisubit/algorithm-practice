@@ -1,5 +1,3 @@
-package org.example.kotlintest.question003
-
 // 좌표 이동 문제 -> 변화량 사용
 // 입력값의 각 행을 하나의 강의실로 표현 -> 2차원 CharArray 로 변환
 // 각 강의실의 0,0 좌표부터 시작하여 이동
