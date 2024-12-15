@@ -1,8 +1,10 @@
-// 2차원 배열 문제 -> 좌표 변화량으로 해결
-// n * n 크기 어레이 생성
-// 방향전환(아래, 우측, 상단좌측) 반복
-// 방향전화 직후, 어레이를 벗어나거나 다른 숫자가 이미 채워져있는 경우 종료
-// 어레이의 각 로우를 하나의 행으로 통합
+// n * n 크기의 어레이 생성
+// 좌표 이동 문제 -> 변화랑 걔념 사용 -> 필요 방향은 아래, 우, 상좌
+// 1. n 을 벗어나거나 다른 숫자를 만날 시, 방향 전환
+// -- 아래 -> n 벗어나지 않도록
+// -- 우 -> n 벗어나지 않도록
+// -- 상좌 -> x, y가 각각 -1 되지 않도록
+// 2. 방향 전환 후, 이동 불가할 시
 
 class Solution {
     private val dx = intArrayOf(0, 1, -1)
@@ -10,6 +12,7 @@ class Solution {
 
     fun solution(n: Int): IntArray {
         val triangle = Array(n) { IntArray(n) }
+
         var v = 1
         var x = 0
         var y = 0
@@ -20,12 +23,12 @@ class Solution {
             var nx = x + dx[d]
             var ny = y + dy[d]
 
-            if (ny == n || nx == n || triangle[ny][nx] != 0) {
+            if (ny == n || ny == -1 || nx == n || nx == -1 || triangle[ny][nx] != 0) {
                 d = (d + 1) % 3
                 nx = x + dx[d]
                 ny = y + dy[d]
 
-                if (nx == n || triangle[ny][nx] != 0) break
+                if (ny == n || ny == -1 || nx == n || nx == -1 || triangle[ny][nx] != 0) break
             }
 
             x = nx
@@ -34,12 +37,11 @@ class Solution {
 
         val result = IntArray(v - 1)
         var index = 0
-        for (i in 0 until n) {
-            for (j in 0..i) {
-                result[index++] = triangle[i][j]
+        for (j in 0 until n) {
+            for (i in 0..j) {
+                result[index++] = triangle[j][i]
             }
         }
-
         return result
     }
 }

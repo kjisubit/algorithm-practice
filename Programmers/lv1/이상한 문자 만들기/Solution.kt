@@ -1,25 +1,24 @@
-// 문자열 순환
-// 짝수 플래그 true
-// 매 순환 마다 짝수 플래그 뒤집기
-// 공백이 될 때마다 짝수 초기화
+// toUpper 플래그 true
+// 이후 플래그 뒤집기 반복
+// 공백 만날 시, 무조건 플래그 true
 
 class Solution {
     fun solution(s: String): String {
-        val builder = StringBuilder()
+        val sb = StringBuilder()
         var toUpper = true
         s.forEach { c ->
-            if (!c.isLetter()) {
-                builder.append(c)
-                toUpper = true
-            } else {
+            if (c.isLetter()) {
                 if (toUpper) {
-                    builder.append(c.uppercaseChar())
+                    sb.append(c.uppercaseChar())
                 } else {
-                    builder.append(c.lowercaseChar())
+                    sb.append(c.lowercaseChar())
                 }
                 toUpper = !toUpper
+            } else {
+                toUpper = true
+                sb.append(c)
             }
         }
-        return builder.toString()
+        return sb.toString()
     }
 }
