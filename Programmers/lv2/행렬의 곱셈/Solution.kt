@@ -1,17 +1,19 @@
-// 행렬 문제 -> 2차원 배열
-// A * B = A 의 행 개수 * B 의 열 개수
+// [행렬의 곱셈]
 
-class Solution {
+// 행렬 곱 크기 = A 행렬의 행 * B 행렬의 열
+
+class Solution004 {
     fun solution(arr1: Array<IntArray>, arr2: Array<IntArray>): Array<IntArray> {
-        val arr = Array(arr1.size) { IntArray(arr2[0].size) }
-        arr1.indices.forEach { i ->
-            arr2[0].indices.forEach { j ->
-                arr[i][j] = 0
+        val answer = Array(arr1.size) { IntArray(arr2[0].size) }
+        for (i in 0 until arr1.size) {
+            for (j in 0 until arr2[0].size) {
+                var result = 0
                 for (k in 0 until arr1[0].size) {
-                    arr[i][j] += arr1[i][k] * arr2[k][j]
+                    result += arr1[i][k] * arr2[k][j]
                 }
+                answer[i][j] = result
             }
         }
-        return arr
+        return answer
     }
 }
