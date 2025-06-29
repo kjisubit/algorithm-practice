@@ -1,24 +1,22 @@
-// maxGap = z - a
-// 소문자 오프셋 = a
-// 대문자 오프셋 = A
-// totalGap = 문자 - 오프셋 + n
-// position = totalGap % (maxGap + 1)
+// [시저 암호]
+
+// 메서드 1 -> char에 대하여 push
 
 class Solution {
     private fun push(c: Char, n: Int): Char {
-        if (!c.isLetter()) return c
-        val maxGap = 'z' - 'a'
+        if (!c.isLetter()) return ' '
+
+        val alphabetCount = 'z' - 'a' + 1
         val offset = if (c.isUpperCase()) 'A' else 'a'
-        val totalGap = c - offset + n
-        val position = totalGap % (maxGap + 1)
+        val position = (c.code - offset.code + n) % alphabetCount
+
         return offset + position
     }
 
     fun solution(s: String, n: Int): String {
-        val sb = StringBuilder()
-        s.forEach { c ->
-            sb.append(push(c, n))
-        }
-        return sb.toString()
+        s.map {
+            push(it, n)
+        }.joinToString("")
+        return s
     }
 }
