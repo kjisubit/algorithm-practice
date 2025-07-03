@@ -1,25 +1,31 @@
-// 문자열에서 모든 0 제거
-// 문자열 길이를 2진법으로 변경
-// 2진 변환 횟수, 제거된 0 개수 리턴
+// [이진 변환 반복하기]
+
+// 메서드 1 - 문자열에서 0 개수 카운트
+
+// 문자열 길이 - 메서드 1 결과 = 1의 길이
+// 1의 길이를 10진수 정수로 표현
+// 결과가 1이 될 때가지 위 과정 반복
 
 class Solution {
     fun solution(s: String): IntArray {
         var binaryString = s
-        var removed = 0
-        var loop = 0
+
+        var transformCounter = 0
+        var zeros = 0
 
         while (binaryString != "1") {
-            val zeros = countZeros(binaryString)
-            removed += zeros
-            loop++
+            val zeroCount = countZero(binaryString)
+            zeros += zeroCount
+            transformCounter++
 
-            val ones = binaryString.length - zeros
+            val ones = binaryString.length - zeroCount
             binaryString = ones.toString(2)
         }
-        return intArrayOf(loop, removed)
+
+        return intArrayOf(transformCounter, zeros)
     }
 
-    private fun countZeros(s: String): Int {
+    private fun countZero(s: String): Int {
         return s.count { it == '0' }
     }
 }
