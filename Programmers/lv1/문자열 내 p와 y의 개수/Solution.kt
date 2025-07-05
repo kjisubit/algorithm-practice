@@ -1,4 +1,5 @@
-// 코틀린을 지원하지 않는 문제
+// [문자열 내 p와 y의 개수]
+
 class Solution {
     fun solution(s: String): Boolean {
         var ps = 0
@@ -6,12 +7,8 @@ class Solution {
 
         s.forEach {
             when (it) {
-                'p', 'P' -> {
-                    ps++
-                }
-                'y', 'Y' -> {
-                    ys++
-                }
+                'p', 'P' -> ps++
+                'y', 'Y' -> ys++
             }
         }
 
