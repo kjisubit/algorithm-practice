@@ -1,10 +1,12 @@
+// [숫자 문자열과 영단어]
+
 class Solution {
-    private val words = arrayOf("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+    val array = arrayOf("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
 
     fun solution(s: String): Int {
         var string = s
-        words.forEachIndexed { index, numberString ->
-            string = string.replace(numberString, index.toString())
+        array.forEachIndexed { i, value ->
+            string = string.replace(value, i.toString())
         }
         return string.toInt()
     }
