@@ -1,42 +1,45 @@
-// 사각형 2 * 2 단위까지 쪼개기
-// 숫자 통일 여부 확인
-// 통일 가능? -> 통일 후 각 숫자 개수 반환
-// 통일 불가? -> 숫자 개수 반환
+// [쿼드압축 후 개수 세기]
 
-// 다음의 재귀 설정
-// 상태: 좌표 x, 좌표 y, 길이 n, 숫자 1의 개수, 숫자 0의 개수
-// 종료: {0:1, 1:0} or {1:0, 0:1}
-// 점화식: (n, x, y) = (n/2, x, y) + (n/2, x+n/2, y) + (n/2, x, y+n/2) + (n/2, x+n/2, y+n/2)
+// 재귀
+// 0, 1의 개수는 Count 객체로 전달
+// 사각형을 최대한 쪼갠 후, 부분 문제 누적 결과 전달하기
+
+// 점화식
+// (y, x, size) =
+// (y, x, size/2) +
+// (y, x + size/2, size/2) +
+// (y + size/2, x, size/2) +
+// (y + size/2, x + size/2, size/2)
+
+// 종료 조건
+// 부분 문제의 사각형이 모두 한 개의 숫자로 채워진 경우
 
 class Solution {
-    private class Count(val zero: Int, val one: Int) {
+    private class Count(val zeros: Int, val ones: Int) {
         fun add(other: Count): Count {
-            return Count(zero + other.zero, one + other.one)
+            return Count(zeros + other.zeros, ones + other.ones)
         }
     }
 
-    private fun count(offsetX: Int, offsetY: Int, size: Int, arr: Array<IntArray>): Count {
+    private fun count(arr: Array<IntArray>, y: Int, x: Int, size: Int): Count {
         val h = size / 2
-        for (x in offsetX until offsetX + size) {
-            for (y in offsetY until offsetY + size) {
-                if (arr[y][x] != arr[offsetY][offsetX]) { // 원소가 섞여있을 경우
-                    // 4개의 상태로 전이
-                    return count(offsetX, offsetY, h, arr)
-                        .add(count(offsetX + h, offsetY, h, arr))
-                        .add(count(offsetX, offsetY + h, h, arr))
-                        .add(count(offsetX + h, offsetY + h, h, arr))
+        for (j in y until y + size) {
+            for (i in x until x + size) {
+                if (arr[j][i] != arr[y][x]) {
+                    return count(arr, y, x, h)
+                        .add(count(arr, y, x + h, h))
+                        .add(count(arr, y + h, x, h))
+                        .add(count(arr, y + h, x + h, h))
                 }
             }
         }
 
-        if (arr[offsetY][offsetX] == 1) {
-            return Count(0, 1)
-        }
-        return Count(1, 0)
+        return if (arr[y][x] == 0) Count(1, 0)
+        else Count(0, 1)
     }
 
     fun solution(arr: Array<IntArray>): IntArray {
-        val count = count(0, 0, arr.size, arr)
-        return intArrayOf(count.zero, count.one)
+        val count = count(arr, 0, 0, arr.size)
+        return intArrayOf(count.zeros, count.ones)
     }
 }
