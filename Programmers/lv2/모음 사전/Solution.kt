@@ -10,7 +10,7 @@
 // 종료 조건
 // 단어 길이가 5
 
-class Solution0 {
+class Solution {
     private val chars = arrayOf('A', 'E', 'I', 'O', 'U')
 
     fun solution(word: String): Int {
