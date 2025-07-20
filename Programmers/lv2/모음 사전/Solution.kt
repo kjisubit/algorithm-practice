@@ -1,27 +1,31 @@
-// "AEIOU"의 char 어레이 선언
-// 재귀를 통해 "알파벳으로 생성 가능한 길이 5 이하의 모든 단어" 만들기
-// 단어가 어떤 규칙으로 생성되는지 파악 -> 제일 중요한 파트이니 아래 괄호를 다시 채워보도록
-// (상태, 종료, 점화식은 어떻게 만들면 좋을까?)
-// 1. 상태: (chars): chars 로 시작하는 단어
-// 2. 종료: 단어 길이가 5
-// 3. 점화식 설계
-// -> (chars) = (chars + a) + (chars + e) + (chars + i) + (chars + o) + (chars + u)
+// [모음 사전]
 
-class Solution {
-    private val chars = charArrayOf('A', 'E', 'I', 'O', 'U')
+// 재귀로 모든 경우의 수 만들어 사전 만들기
+// a, aa, aaa, aaaa, aaaaa, aaaai, aaaae, aaaao, aaaau
+// 해당 단어가 몇 번째 인덱스인지 확인하여 리턴
+
+// 점화식 dfs
+// (word) = word + (word + 'a') + (word + 'e') + (word + 'i') + (word + 'o') + (word + 'u')
+
+// 종료 조건
+// 단어 길이가 5
+
+class Solution0 {
+    private val chars = arrayOf('A', 'E', 'I', 'O', 'U')
+
     fun solution(word: String): Int {
-        val words = mutableListOf<String>()
-        generate("", words)
-        return words.indexOf(word)
+        val dict = mutableListOf<String>()
+        makeWord("", dict)
+        return dict.indexOf(word) + 1
     }
 
-    private fun generate(word: String, words: MutableList<String>) {
-        words.add(word)
+    private fun makeWord(word: String, dict: MutableList<String>) {
+        if (word.isNotEmpty()) dict.add(word)
 
         if (word.length == 5) return
 
         for (c in chars) {
-            generate(word + c, words)
+            makeWord(word + c, dict)
         }
     }
 }
