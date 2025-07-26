@@ -1,15 +1,23 @@
-// 가로 길이 x, 세로 길이 y라 가정
-// 테두리 개수 = brown = 2x + 2y - 4
-// 가운데 영역 개수 = yellow = (x - 2) * (y - 2)
-// 총 개수 = x * y
+// [카펫]
+
+// w * h = brown + yellow
+// brown = w * 2 + (h - 2) * 2
+// yellow = (w - 2) * (h - 2)
+// 3 <= w <= maxWidth + 2
+// 3 <= h <= maxWidth + 2
+// maxWidth = brown 으로 표현 가능한 최대 길이 = (5000 - 2) / 2
 
 class Solution {
     fun solution(brown: Int, yellow: Int): IntArray {
-        for (x in 3..5000) {
-            for (y in 3..x) {
-                val brownMatched = brown == (2 * x + 2 * y - 4)
-                val yellowMatched = yellow == (x - 2) * (y - 2)
-                if (brownMatched && yellowMatched) return intArrayOf(x, y)
+        val maxWidth = (5000 - 2) / 2
+        for (w in 3..maxWidth + 2) {
+            for (h in 3..w) {
+                val firstRule = yellow == (w - 2) * (h - 2)
+                val secondRule = brown == (w - 2) * 2 + h * 2
+
+                if (firstRule && secondRule) {
+                    return intArrayOf(w, h)
+                }
             }
         }
         return intArrayOf(0, 0)
