@@ -1,84 +1,82 @@
-// (이 문제를 재귀로 풀고 싶다면, 21번과 동일한 방식으로 재귀 활용이 가능하니 반드시 참고하도록)
-// 재귀를 통해 연산자 우선순위 구하기
-// 단어가 어떤 규칙으로 생성되는지 파악 -> 제일 중요한 파트이니 아래 괄호를 다시 채워보도록
-// (상태, 종료, 점화식은 어떻게 만들면 좋을까?)
-// 1. 상태: (chars): chars 로 시작하는 단어
-// 2. 종료: 단어 길이가 3
-// 3. 점화식 설계
-// -> (chars) = '*'를 써본적이 없다면 있다면 (chars + '*') + '+'를 써본적이 없다면 있다면 (chars + '+') + '-'를 써본적이 없다면 있다면 (chars + '-')
+// [수식 최대화]
 
-// 주어진 연산식을 문자 단위 String 으로 쪼갠 후, mutableList 로 변환
-// 최우선 순위 연산자 만날 때 다음의 로직 반복
-// remove 3번, add 1번 (연산 결과)
+// dfs 재귀 활용하여 표현 가능한 우선 순위 목록 생성
+// (priority) = (priority + '*') + (priority + '+') + (priority + '-')
+// 단, 이미 사용된 연산자에 대해서는 재귀를 종료하도록
+// 종료 조건
+// 3개의 연산자로 문자열 생성 시
+
+// 연산자 토큰을 기준으로 연산자와 피연산자로 구성된 리스트 생성
+
+// 우선 순위 목록의 수 만큼 연산 수행
 
 class Solution {
-    private val operators = arrayOf("*", "+", "-")
-
     fun solution(expression: String): Long {
-        val priority = ArrayList<String>()
-        val isUsed = (0..2).map { _ -> false }.toTypedArray()
+        val operators = charArrayOf('*', '+', '-')
+        val priorities = mutableListOf<String>()
+        val isUsed = Array(3) { false }
+        generate(operators, "", isUsed, priorities)
 
-        // 모든 우선 순위 케이스 구하기
-        getPriority("", isUsed, priority)
-
-        // 계산식 토큰화
-        val tokens = expression.split(Regex("(?=[*+-])|(?<=[*+-])")).toMutableList()
-
-        // 우선 순위별 계산
-        var max: Long = 0
-        priority.forEach { p ->
-            val result = calculate(tokens, p)
-            if (max < result) max = result
+        var max = 0L
+        for (priority in priorities) {
+            val calculation = calculate(expression, priority)
+            if (calculation > max) max = calculation
         }
         return max
     }
 
-    private fun getPriority(string: String, isUsed: Array<Boolean>, priority: ArrayList<String>) {
-        if (string.length == 3) {
-            priority.add(string)
-            return
-        }
-
-        for (i in isUsed.indices) {
-            if (isUsed[i]) continue
-
-            isUsed[i] = true
-            getPriority(string + operators[i], isUsed, priority)
-            isUsed[i] = false
-        }
-    }
-
-    private fun operate(lhs: Long, rhs: Long, operator: String): Long {
-        return when (operator) {
-            "*" -> lhs * rhs
-            "+" -> lhs + rhs
-            "-" -> lhs - rhs
-            else -> 0
-        }
-    }
-
-
-    private fun calculate(tokens: List<String>, priority: String): Long {
-        val tokensCopy = tokens.toMutableList()
+    private fun calculate(expression: String, priority: String): Long {
+        val tokens = expression.split(Regex("(?=[*+-])|(?<=[*+-])")).toMutableList()
 
         for (i in priority.indices) {
-            val targetOperator = priority[i].toString()
+            val op = priority[i].toString()
 
             var j = 0
-            while (j < tokensCopy.size) {
-                if (targetOperator == tokensCopy[j]) {
-                    val lhs = tokensCopy[j - 1].toLong()
-                    val rhs = tokensCopy[j + 1].toLong()
-                    val result = operate(lhs, rhs, targetOperator)
-                    tokensCopy.removeAt(j - 1)
-                    tokensCopy.removeAt(j - 1)
-                    tokensCopy.removeAt(j - 1)
-                    tokensCopy.add(j - 1, result.toString())
+            while (j < tokens.size) {
+                if (tokens[j] == op) {
+                    val lhs = tokens[j - 1].toLong()
+                    val rhs = tokens[j + 1].toLong()
+                    val result = operate(lhs, rhs, op)
+                    tokens.removeAt(j - 1)
+                    tokens.removeAt(j - 1)
+                    tokens.removeAt(j - 1)
+                    tokens.add(j - 1, result.toString())
                     j -= 2
                 }
                 j++
             }
         }
-        return Math.abs(tokensCopy[0].toLong())
+
+        val result = tokens.joinToString("").toLong()
+        return if (result < 0) result * -1 else result
+    }
+
+    private fun operate(lhs: Long, rhs: Long, op: String): Long {
+        return when (op) {
+            "*" -> lhs * rhs
+            "+" -> lhs + rhs
+            else -> lhs - rhs
+        }
+    }
+
+    private fun generate(
+        operators: CharArray,
+        priority: String,
+        isUsed: Array<Boolean>,
+        priorities: MutableList<String>
+    ) {
+        if (priority.length == 3) {
+            priorities.add(priority)
+            return
+        }
+
+        for (i in operators.indices) {
+            if (isUsed[i]) continue
+            val newPriority = priority + operators[i]
+
+            isUsed[i] = true
+            generate(operators, newPriority, isUsed, priorities)
+            isUsed[i] = false
+        }
     }
 }
