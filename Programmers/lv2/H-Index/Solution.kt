@@ -1,20 +1,25 @@
-// (문제 똑바로 이해하지 않아서 틀림) -> (힌트: h가 주어진 입력값 중에서 나오라는 법은 없다.)
+// [H-Index]
 
-// h 번 이상 인용된 논문이 h 편 이상이고, 나머지 논문이 h 번 이하 인용되었다면 -> H-Index
-// 7 5 5 5 1
-// 6 5 3 1 0
-// 원소 순회
-// 인덱스 + 1 >= 인덱스의 값이라면 해당 값 리턴
+// 입력값 내림차순 정렬 reversed
+
+// 가장 큰 h 후보로부터 가장 작은 후보인 0에 대하여 반복 연산 수행
+// - for (h in citations.size downTo 0)
+// - case1: reversed[h - 1] >= h
+// - case2: reversed[h] <= h
+// - 인덱스 i + 1 부터 마지막 까지의 원소 개수가 count 이하일 경우
+// - h 인덱스 갱신
 
 class Solution {
     fun solution(citations: IntArray): Int {
-        val reversed = citations.sorted().reversed()
         var answer = 0
-        for (i in 1..citations.size) {
-            val index = i - 1
-            val value = reversed[index]
-            if (value >= i) answer = i
-            else break
+        var reversed = citations.sorted().reversed()
+        for (h in citations.size downTo 1) {
+            val case1 = reversed[h - 1] >= h
+            val case2 = citations.size - h < h
+            if (case1 && case2) {
+                answer = h
+                break
+            }
         }
         return answer
     }
