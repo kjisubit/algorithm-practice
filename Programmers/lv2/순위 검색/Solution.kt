@@ -1,14 +1,47 @@
-// 큰 부분 문제를 작은 부분 문제로 표현 가능하다 -> 재귀
-// 상태
-// 종료
-// 점화식
-// (공백으로 시작하는 토큰) = (token[index] 로 시작하는 토큰) + (-로 시작하는 토큰)
-// (index, "prefix") = (index + 1, "prefix "+ token[index]) + (index + 1, "-" + token[index])
+// [순위 검색]
+
+// query 배열을 순회하며 info 배열 조회 시, 시간 복잡도 1억 초과하므로 전처리 필요
+
+// 메서드 1
+// -> info 로 생성 가능한 모든 조합을 key로 같는 map 생성
+
+// 메서드 2
+// -> 이후 query의 각 요소에 대응되는 스코어 목록 산출
 
 class Solution {
-    private fun forEachKey(index: Int, prefix: String, tokens: Array<String>, action: (String) -> Unit) {
+    fun solution(info: Array<String>, query: Array<String>): IntArray {
+        val scoreMap = buildScoreMap(info)
+
+        val answer = IntArray(query.size)
+        for (i in query.indices) {
+            answer[i] = count(scoreMap, query[i])
+        }
+
+        return answer
+    }
+
+    private fun buildScoreMap(info: Array<String>): Map<String, MutableList<Int>> {
+        val scoreMap = mutableMapOf<String, MutableList<Int>>()
+
+        for (i in info) {
+            val tokens = i.split(" ")
+            val score = tokens.last().toInt()
+            forEachKey(0, "", tokens) { key: String ->
+                scoreMap.putIfAbsent (key, mutableListOf())
+                scoreMap[key]!!.add(score)
+            }
+        }
+
+        for (list in scoreMap.values) {
+            list.sort()
+        }
+
+        return scoreMap
+    }
+
+    private fun forEachKey(index: Int, prefix: String, tokens: List<String>, action: (String) -> Unit) {
         if (index == tokens.size - 1) {
-            action(prefix)
+            action (prefix)
             return
         }
 
@@ -16,26 +49,18 @@ class Solution {
         forEachKey(index + 1, "$prefix-", tokens, action)
     }
 
-    private fun buildScoresMap(info: Array<String>): Map<String, MutableList<Int>> {
-        val scoresMap: MutableMap<String, MutableList<Int>> = HashMap()
+    private fun count(scoreMap: Map<String, MutableList<Int>>, query: String): Int {
+        val tokens = query.split(Regex(" (and )?"))
+        val key = tokens.slice(0..tokens.size - 2).joinToString("")
+        val score = tokens.last().toInt()
 
-        for (s in info) {
-            val tokens = s.split(" ".toRegex()).toTypedArray()
-            val score = tokens[tokens.size - 1].toInt()
-            forEachKey(0, "", tokens) { key: String ->
-                scoresMap.putIfAbsent(key, ArrayList())
-                scoresMap[key]!!.add(score)
-            }
-        }
+        if (!scoreMap.containsKey(key)) return 0
+        val scores: List<Int> = scoreMap[key]!!
 
-        for (list in scoresMap.values) {
-            list.sort()
-        }
-
-        return scoresMap
+        return scores.size - binarySearch(score, scoreMap[key]!!)
     }
 
-    private fun binarySearch(score: Int, scores: List<Int>): Int {
+    private fun binarySearch (score: Int, scores: List<Int>): Int {
         var start = 0 // inclusive
         var end = scores.size - 1 // inclusive
 
@@ -53,28 +78,5 @@ class Solution {
             return scores.size
         }
         return start
-    }
-
-    private fun count(query: String, scoresMap: Map<String, MutableList<Int>>): Int {
-        val tokens = query.split(" (and )?".toRegex()).toTypedArray()
-        val key = tokens.copyOf(tokens.size - 1).joinToString("")
-
-        if (!scoresMap.containsKey(key)) return 0
-        val scores: List<Int> = scoresMap[key]!!
-
-        val score = tokens[tokens.size - 1].toInt()
-
-        return scores.size - binarySearch(score, scoresMap[key]!!)
-    }
-
-    fun solution(info: Array<String>, query: Array<String>): IntArray {
-        val scoresMap = buildScoresMap(info)
-
-        val answer = IntArray(query.size)
-        for (i in answer.indices) {
-            answer[i] = count(query[i], scoresMap)
-        }
-
-        return answer
     }
 }
