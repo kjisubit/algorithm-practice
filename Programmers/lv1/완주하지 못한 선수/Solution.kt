@@ -1,22 +1,20 @@
-// 선수의 이름 별 등장 횟수 구하기
-// 횟수가 1이라면 map 에서 이름 제거
-// 횟수가 2이상이라면 횟수 차감
+// [완주하지 못한 선수]
+
+// 참가자 중에서 완주자 목록에 없는 명단 하나씩 제거
 
 class Solution {
     fun solution(participant: Array<String>, completion: Array<String>): String {
-        val count = mutableMapOf<String, Int>()
-
-        participant.forEach { name ->
-            count.putIfAbsent(name, 0)
-            count[name] = count[name]!! + 1
+        val countMap = mutableMapOf<String, Int>()
+        for (name in participant) {
+            countMap.putIfAbsent(name, 0)
+            countMap[name] = countMap[name]!! + 1
         }
 
-        completion.forEach { name ->
-            val value = count[name]!! - 1
-            count[name] = value
-            if (value == 0) count.remove(name)
+        for (name in completion) {
+            countMap[name] = countMap[name]!! - 1
+            if (countMap[name] == 0) countMap.remove(name)
         }
 
-        return count.keys.iterator().next()
+        return countMap.keys.first()
     }
 }
