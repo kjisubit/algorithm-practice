@@ -1,18 +1,23 @@
+// [올바른 괄호]
+
+// '('이 등장할 때마다 ')' 소거하도록
+
 class Solution {
     fun solution(s: String): Boolean {
-        var counter = 0
+        val ad = ArrayDeque<Char>()
 
         for (c in s) {
             when (c) {
                 '(' -> {
-                    counter++
+                    ad.addLast(c)
                 }
-
                 ')' -> {
-                    if (counter-- == 0) return false
+                    if (ad.isEmpty()) return false
+                    ad.removeLast()
                 }
             }
         }
-        return counter == 0
+
+        return ad.isEmpty()
     }
 }
