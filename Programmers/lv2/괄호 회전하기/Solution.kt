@@ -1,33 +1,37 @@
-// 회전 가능한 모든 오프셋으로 루프
-// 각 오프셋 만큼 회전시킨 결과가 괄호 내용에 부합하는지 확인
+// [괄호 회전하기]
+
+// 0 until s.length 만큼 회전
+// 여는 괄호 확인될 때마다 짝이되는 괄호를 스택에 push
+// 닫는 괄호 확인될 때마다 해당 괄호를 스택에서 제거
+
 class Solution {
-    private fun isCorrect(s: String, offset: Int): Boolean {
-        val arrayDeque = ArrayDeque<Char>()
+    fun solution(s: String): Int {
+        var count = 0
+        for (i in 0 until s.length) {
+            val isPaired = isPaired(i, s)
+            if (isPaired) count++
+        }
+        return count
+    }
+
+    private fun isPaired(offset: Int, s: String): Boolean {
+        val ad = ArrayDeque<Char>()
 
         for (i in s.indices) {
-            val c = s[(i + offset) % s.length]
+            val index = (i + offset) % s.length
+            val char = s[index]
 
-            when (c) {
-                '(' -> arrayDeque.addLast(')')
-                '{' -> arrayDeque.addLast('}')
-                '[' -> arrayDeque.addLast(']')
+            when (char) {
+                '(' -> ad.addLast(')')
+                '{' -> ad.addLast('}')
+                '[' -> ad.addLast(']')
                 ')', '}', ']' -> {
-                    if (arrayDeque.isEmpty()) return false
-                    if (arrayDeque.removeLast() != c) return false
+                    if (ad.isEmpty()) return false
+                    if (char != ad.removeLast()) return false
                 }
             }
         }
 
-        return arrayDeque.isEmpty()
-    }
-
-    fun solution(s: String): Int {
-        var count = 0
-        for (offset in s.indices) {
-            if (isCorrect(s, offset)) {
-                count++
-            }
-        }
-        return count
+        return ad.isEmpty()
     }
 }
