@@ -11,47 +11,16 @@
 // 우선 순위 목록의 수 만큼 연산 수행
 
 class Solution {
-    fun solution(expression: String): Long {
-        val operators = charArrayOf('*', '+', '-')
-        val priorities = mutableListOf<String>()
-        val isUsed = Array(3) { false }
-        generate(operators, "", isUsed, priorities)
+    private val precedences = arrayOf(
+        "*+-".split(""),
+        "*-+".split(""),
+        "+*-".split(""),
+        "+-*".split(""),
+        "-*+".split(""),
+        "-+*".split("")
+    )
 
-        var max = 0L
-        for (priority in priorities) {
-            val calculation = calculate(expression, priority)
-            if (calculation > max) max = calculation
-        }
-        return max
-    }
-
-    private fun calculate(expression: String, priority: String): Long {
-        val tokens = expression.split(Regex("(?=[*+-])|(?<=[*+-])")).toMutableList()
-
-        for (i in priority.indices) {
-            val op = priority[i].toString()
-
-            var j = 0
-            while (j < tokens.size) {
-                if (tokens[j] == op) {
-                    val lhs = tokens[j - 1].toLong()
-                    val rhs = tokens[j + 1].toLong()
-                    val result = operate(lhs, rhs, op)
-                    tokens.removeAt(j - 1)
-                    tokens.removeAt(j - 1)
-                    tokens.removeAt(j - 1)
-                    tokens.add(j - 1, result.toString())
-                    j -= 2
-                }
-                j++
-            }
-        }
-
-        val result = tokens.joinToString("").toLong()
-        return if (result < 0) result * -1 else result
-    }
-
-    private fun operate(lhs: Long, rhs: Long, op: String): Long {
+    private fun calculate(op: String, lhs: Long, rhs: Long): Long {
         return when (op) {
             "*" -> lhs * rhs
             "+" -> lhs + rhs
@@ -59,24 +28,42 @@ class Solution {
         }
     }
 
-    private fun generate(
-        operators: CharArray,
-        priority: String,
-        isUsed: Array<Boolean>,
-        priorities: MutableList<String>
-    ) {
-        if (priority.length == 3) {
-            priorities.add(priority)
-            return
+    private fun calculate(expression: String, precedence: List<String>): Long {
+        val regex = "(?=[*+-])|(?<=[*+-])".toRegex()
+        val tokens = expression.split(regex).toMutableList()
+
+        for (op in precedence) {
+            var i = 0
+            while (i < tokens.size - 1) {
+                if (tokens[i] == op) {
+                    val lhs = tokens[i - 1].toLong()
+                    val rhs = tokens[i + 1].toLong()
+
+                    val calculation = calculate(tokens[i], lhs, rhs)
+                    tokens.removeAt(i - 1)
+                    tokens.removeAt(i - 1)
+                    tokens.removeAt(i - 1)
+                    tokens.add(i - 1, calculation.toString())
+                    i -= 2
+                    i++
+                } else {
+                    i++
+                }
+            }
         }
 
-        for (i in operators.indices) {
-            if (isUsed[i]) continue
-            val newPriority = priority + operators[i]
+        var result = tokens[0].toLong()
+        if (result < 0) result *= -1
 
-            isUsed[i] = true
-            generate(operators, newPriority, isUsed, priorities)
-            isUsed[i] = false
+        return result
+    }
+
+    fun solution(expression: String): Long {
+        var max = Long.MIN_VALUE
+        for (precedence in precedences) {
+            val calculation = calculate(expression, precedence)
+            if (calculation > max) max = calculation
         }
+        return max
     }
 }
