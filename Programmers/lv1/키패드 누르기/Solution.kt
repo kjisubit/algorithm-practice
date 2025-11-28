@@ -10,7 +10,7 @@
 
 import kotlin.math.*
 
-class Solution057 {
+class Solution {
     private class Hand(
         var x: Int,
         var y: Int = 3,
@@ -65,4 +65,3 @@ class Solution057 {
         }.joinToString("")
     }
 }
-
