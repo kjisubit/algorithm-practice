@@ -2,7 +2,7 @@
 
 // 투 포인터 사용
 
-class Solution052 {
+class Solution {
     fun solution(gems: Array<String>): IntArray {
         var answerStart = 0
         var answerEnd = gems.size - 1
