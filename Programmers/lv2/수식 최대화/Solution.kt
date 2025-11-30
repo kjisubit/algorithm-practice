@@ -1,14 +1,12 @@
+package org.example.kotlintest.question020
+
 // [수식 최대화]
 
-// dfs 재귀 활용하여 표현 가능한 우선 순위 목록 생성
-// (priority) = (priority + '*') + (priority + '+') + (priority + '-')
-// 단, 이미 사용된 연산자에 대해서는 재귀를 종료하도록
-// 종료 조건
-// 3개의 연산자로 문자열 생성 시
+// 표현 가능한 우선 순위는 하드코딩으로 커버 가능한 수준
+// expression을 토큰화 한 후, 우선 순위에 걸맞는 연산 수행하여 최대값 갱신
 
-// 연산자 토큰을 기준으로 연산자와 피연산자로 구성된 리스트 생성
-
-// 우선 순위 목록의 수 만큼 연산 수행
+// 메서드 1 -> *, +, - 연산 수행
+// 메서드 2 -> 연산 결과 누적
 
 class Solution {
     private val precedences = arrayOf(
