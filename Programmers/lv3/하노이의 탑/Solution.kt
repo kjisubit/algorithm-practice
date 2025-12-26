@@ -11,19 +11,20 @@
 
 class Solution {
     fun solution(n: Int): Array<IntArray> {
-        val process = mutableListOf<IntArray>()
-        hanoi(n, 1, 3, process)
-        return process.toTypedArray()
+        val order = mutableListOf<IntArray>()
+        hanoi(n, 1, 3, order)
+        return order.toTypedArray()
     }
 
-    private fun hanoi(n: Int, from: Int, to: Int, process: MutableList<IntArray>) {
+    private fun hanoi(n: Int, from: Int, to: Int, order: MutableList<IntArray>) {
         if (n == 1) {
-            process.add(intArrayOf(from, to))
+            order.add(intArrayOf(from, to))
             return
         }
 
-        hanoi(n - 1, from, 6 - from - to, process)
-        hanoi(1, from, to, process)
-        hanoi(n - 1, 6 - from - to, to, process)
+        val other = 6 - from - to
+        hanoi(n - 1, from, other, order)
+        hanoi(1, from, to, order)
+        hanoi(n - 1, other, to, order)
     }
 }
