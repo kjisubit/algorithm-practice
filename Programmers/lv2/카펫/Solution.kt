@@ -9,18 +9,14 @@
 
 class Solution {
     fun solution(brown: Int, yellow: Int): IntArray {
-        val answer = IntArray(2)
-        for (width in 3..((5000 - 2) / 2)) {
+        for (width in 3..(5000 - 2) / 2) {
             for (height in 3..width) {
-                val case1 = brown + yellow == width * height
-                val case2 = width == (brown - (height - 2) * 2) / 2
-                if (case1 && case2) {
-                    answer[0] = width
-                    answer[1] = height
-                    break
-                }
+                val case01 = width == (brown - (height - 2) * 2) / 2
+                val case02 = width * height == yellow + brown
+
+                if (case01 && case02) return intArrayOf(width, height)
             }
         }
-        return answer
+        return intArrayOf(0, 0)
     }
 }
