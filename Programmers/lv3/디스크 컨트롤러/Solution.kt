@@ -1,46 +1,54 @@
 // [디스크 컨트롤러]
 
-// JobClass
-// -> 멤버로 startTime, duration
+// 수행 시간이 짧은 작업부터 노출되도록 정렬 -> PriorityQueue
 
-// duration이 작은 작업 부터 수행해야 뒤에 있는 다른 작업들도 수행 시간이 짧아짐
+// q = 작업 요청 시간에 도달하지 못한 작업
+// pq = 요청 시간은 지났으나 아직 시작되지 않은 작업
 
-// 작업 순회 시 Queue 활용
-// 현재 시간 time, 작업의 종료 부터 요청까지의 누적 시간 exec
+// Job 클래스
+// 멤버 - startTime, execTime
 
-// "시작 시간 <= 현재 시간"인 모든 작업을 Queue에서 가져와 PriorityQueue에 할당
-// PriorityQueue 에서 duration이 가장 작은 작업을 가져와 수행한 후, 현재 시간 및 실행 시간 누적
+// time = 현재 시간
+// 요청 부터 종료까지 누적 시간 = exec
 
-import java.util.PriorityQueue
-import kotlin.collections.sortWith
+import java.util.*
 
-class Solution051 {
-    private class Job(val startTime: Int, val duration: Int)
+class Solution {
+    private class Job(val startTime: Int, val execTime: Int)
 
     fun solution(rawJobs: Array<IntArray>): Int {
-        val jobs = rawJobs.map { Job(it[0], it[1]) }.toMutableList()
-        jobs.sortWith( compareBy { it.startTime } )
+        val jobs = rawJobs.map {
+            Job(it[0], it[1])
+        }.sortedWith(compareBy { it.startTime })
 
         val q = ArrayDeque<Job>(jobs)
-        val pq = PriorityQueue<Job>(compareBy { it.duration })
+        val pq = PriorityQueue<Job>(compareBy { it.execTime })
 
         var time = 0
-        var exec = 0
+        var totalDuration = 0
 
         while (q.isNotEmpty() || pq.isNotEmpty()) {
+            // 현재 시간에 실행 가능한 작업이 존재할 경우, pq에 저장
             while (q.isNotEmpty() && q.first().startTime <= time) {
                 pq.add(q.removeFirst())
             }
 
+            // 실행 가능한 작업이 존재하지 않을 경우, q의 첫번째 작업으로 현재 시간 갱신
             if (pq.isEmpty()) {
-                time = q.first().startTime
-                continue
-            } else {
+                time = q.first.startTime
+            }
+            // 실행 가능한 작업이 존재할 경우, 수행 시간이 가장 작은 작업 수행 후 현재 시간 갱신
+            else {
                 val job = pq.poll()
-                exec += job.duration + time - job.startTime
-                time += job.duration
+
+                val nTime = time + job.execTime
+                val duration = time - job.startTime + job.execTime
+
+                time = nTime
+                totalDuration += duration
             }
         }
-        return exec / rawJobs.size
+
+        return totalDuration / jobs.size
     }
 }
