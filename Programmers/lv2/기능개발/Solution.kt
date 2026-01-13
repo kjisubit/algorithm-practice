@@ -1,7 +1,4 @@
-package org.example.kotlintest.question045
-
 // [기능 개발]
-
 // progresses 순회하여 큐에 저장
 // 작업이 완료되는대기까지 걸리는 시간 expiration 계산
 // 작업이 완료될 때마다 count 추가
@@ -11,20 +8,21 @@ package org.example.kotlintest.question045
 
 import kotlin.math.ceil
 
-class Solution045 {
+class Solution {
     fun solution(progresses: IntArray, speeds: IntArray): IntArray {
-        val answer = mutableListOf<Int>()
-        val ad = ArrayDeque<Int>()
+        val q = ArrayDeque<Int>()
 
         for (i in progresses.indices) {
-            ad.addLast(i)
+            q.addLast(i)
         }
+
+        val answer = mutableListOf<Int>()
 
         var day = 0
         var count = 0
-        while (ad.isNotEmpty()) {
-            val index = ad.removeFirst()
-            val expiration = ceil((100 - progresses[index]).toDouble() / speeds[index]).toInt()
+        while (q.isNotEmpty()) {
+            val i = q.removeFirst()
+            val expiration = ceil((100 - progresses[i]).toDouble() / speeds[i]).toInt()
 
             if (expiration > day) {
                 if (day != 0) {
@@ -33,10 +31,11 @@ class Solution045 {
                 }
                 day = expiration
             }
+
             count++
         }
-
         answer.add(count)
+
         return answer.toIntArray()
     }
 }
