@@ -1,66 +1,71 @@
 // [메뉴 리뉴얼]
 
-// 1.가능한 모든 메뉴 조합 생성 (재귀)
-// 주문 목록(orders)에서 사이즈 별 가장 많이 등장한 메뉴(coursesBySize) 등록
-// 점화식: (a) = a + (ab) + (ac) + .. + (ay) + (az)
-// -> (selected, next) = selected + (selected, next + 1) + ... (selected, 'Z')
-// 종료 조건: 조합의 크기가 10 개 이상인 경우 + 한 번 이하로 등장한 가망 없는 조합인 경우
+// 가능한 모든 조합 생성
+// 조합 생성 과정에서 2번 이상 등장한 코스에 대해 카운트
 
-// 2.메뉴 등장 횟수 카운트
-// 주문 목록(orders)에서 조합을 모두 포함하는 케이스가 있을 시, 코스 길이 별 주문 목록 갱신
+// 조합 생성
+// 상태: (selected, next)
+// 종료: 등장 횟수 2 이하, 조합 길이 10 초과
+// 점화식: (selected, next) = (selected + next, next + 1) + (selected + next + 1, next + 2) ...
 
-class Solution {
-    private class Course(val course: String, val occurrences: Int)
+class Solution029 {
+    private class Course(val course: String, val occurrence: Int)
 
     fun solution(orders: Array<String>, course: IntArray): Array<String> {
-        val orderList = orders.map { it.toSet() }
-
-        val coursesBySize = mutableMapOf<Int, MutableList<Course>>()
-        for (size in course) {
-            coursesBySize[size] = mutableListOf<Course>(Course("", 0))
+        // 길이 별 최고로 많이 등장한 코스 메뉴 목록
+        val courseByLength = mutableMapOf<Int, MutableList<Course>>()
+        course.forEach {
+            courseByLength[it] = mutableListOf<Course>(Course("", 0))
         }
 
-        val selected = mutableSetOf<Char>()
-        getCourses(selected, 'A', orderList, coursesBySize)
+        // 주문 목록
+        val orderSets = orders.map { it.toSet() }
 
-        return coursesBySize.values.filter { courses ->
-            courses[0].occurrences != 0
-        }.flatten().map { it.course }.sorted().toTypedArray()
+        // 길이 별 최고로 많이 등장한 코스 구하기
+        getCourses(mutableSetOf<Char>(), 'A', orderSets, courseByLength)
+
+        return courseByLength
+            .values
+            .filter { it[0].occurrence != 0 }
+            .flatten()
+            .map { it.course }
+            .sorted()
+            .toTypedArray()
     }
 
     private fun getCourses(
         selected: MutableSet<Char>,
         next: Char,
-        orderList: List<Set<Char>>,
-        coursesBySize: MutableMap<Int, MutableList<Course>>
+        orderSets: List<Set<Char>>,
+        courseByLength: MutableMap<Int, MutableList<Course>>
     ) {
-        // 2회 미만 등장한 조합 스킵
-        val occurrences = orderList.count { it.containsAll(selected) }
-        if (occurrences < 2) return
+        // 현재 조합의 등장 횟수
+        val occurrence = orderSets.count { it.containsAll(selected) }
+        if (occurrence < 2) return
 
-        // 사이즈 별 가장 많이 등장한 코스 갱신
-        val size = selected.size
-        if (coursesBySize.containsKey(size)) {
-            val courses = coursesBySize[size]!!
-            val selectedString = selected.sorted().joinToString("")
-            val course = Course(selectedString, occurrences)
-            if (occurrences > courses[0].occurrences) {
+        // 현재 조합의 길이
+        val length = selected.size
+
+        // 조합 등장 횟수 기록
+        if (courseByLength.keys.contains(length)) {
+            val courses = courseByLength[length]!!
+
+            val selectedString = selected.joinToString("")
+            val selectedCourse = Course(selectedString, occurrence)
+            if (occurrence > courses[0].occurrence) {
                 courses.clear()
-                courses.add(course)
-            } else if (occurrences == courses[0].occurrences) {
-                courses.add(course)
+                courses.add(selectedCourse)
+            } else if (occurrence == courses[0].occurrence) {
+                courses.add(selectedCourse)
             }
         }
 
-        // 코스 길이가 10을 충족할 경우 종료
-        if (size >= 10) return
+        if (length == 10) return
 
-        var menu = next
-        while (menu <= 'Z') {
-            selected.add(menu)
-            getCourses(selected, menu + 1, orderList, coursesBySize)
-            selected.remove(menu)
-            menu++
+        for (c in next..'Z') {
+            selected.add(c)
+            getCourses(selected, c + 1, orderSets, courseByLength)
+            selected.remove(c)
         }
     }
 }
