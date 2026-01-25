@@ -4,20 +4,42 @@
 
 class Solution {
     fun solution(newId: String): String {
-        var answer = newId
-        answer = answer.lowercase()
-        answer = answer.replace(Regex("[^a-z0-9\\-_.]"), "")
-        answer = answer.replace(Regex("\\.{2,}"), ".")
-        answer = answer.replace(Regex("^\\.|\\.$"), "")
-        if (answer.isEmpty()) answer = "a"
-        if (answer.length >= 16) {
-            answer = answer.substring(0, 15)
-            answer = answer.replace(Regex("\\.$"), "")
+        var id = newId
+        // 1
+        id = id.map {
+            if (it in 'A'..'Z') it + ('a' - 'A')
+            else it
+        }.joinToString("")
+
+        // 2
+        val regex1 = Regex("[^a-z0-9\\-_.]")
+        id = id.replace(regex1, "")
+
+        // 3
+        val regex2 = Regex("\\.{2,}")
+        id = id.replace(regex2, ".")
+
+        // 4
+        val regex3 = Regex("^\\.|\\.$")
+        id = id.replace(regex3, "")
+
+        // 5
+        if (id.isEmpty()) id = "a"
+
+        // 6
+        if (id.length >= 16) {
+            id = id.substring(0, 15)
+
+            val regex5 = Regex("\\.$")
+            id = id.replace(regex5, "")
         }
-        val last = answer[answer.length - 1]
-        while (answer.length <= 2) {
-            answer += last
+
+        // 7
+        val lastChar = id[id.length - 1]
+        while (id.length <= 2) {
+            id += lastChar
         }
-        return answer
+
+        return id
     }
 }
