@@ -1,40 +1,40 @@
 // [다리를 지나는 트럭]
 
-// 순차 처리 문제 -> 큐 사용
+// 순차 처리 -> 큐
 
-// 매초 시간 경과할 때마다 다음의 로직 반복
-// time++
-// 허용 가능한 무게 내에서 트럭 진입 허용
-// 모든 트럭이 지나갔다고 판단될 경우, 반복 종료
-
-class Solution {
+class Solution0 {
     fun solution(bridge_length: Int, weight: Int, truck_weights: IntArray): Int {
         var time = 0
         var truckIndex = 0
 
-        var bridge = ArrayDeque<Int>()
-        for (i in 0 until bridge_length) {
-            bridge.add(0)
+        val bridge = ArrayDeque<Int>()
+        for (i in 1..bridge_length) {
+            bridge.addLast(0)
         }
         var bridgeWeight = 0
 
         while (truckIndex < truck_weights.size) {
-            bridgeWeight -= bridge.removeLast()
+            // 트럭 무게
             val truckWeight = truck_weights[truckIndex]
+
+            // 매 초마다 강제 배출
+            time++
+            bridgeWeight -= bridge.removeFirst()
+
+            // 허용 가능한 무게에서 진입 허용
             if (bridgeWeight + truckWeight <= weight) {
-                bridge.addFirst(truckWeight)
+                bridge.addLast(truckWeight)
                 bridgeWeight += truckWeight
                 truckIndex++
             } else {
-                bridge.addFirst(0)
+                bridge.addLast(0)
             }
-
-            time++
         }
 
+        // 다리에 트럭이 존재할 경우, 모두 제거할 때까지 배출
         while (bridgeWeight > 0) {
-            bridgeWeight -= bridge.removeLast()
             time++
+            bridgeWeight -= bridge.removeFirst()
         }
 
         return time
