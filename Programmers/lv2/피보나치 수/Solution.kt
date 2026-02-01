@@ -1,26 +1,26 @@
 // [피보나치 수]
 
-// 피보나치 연산 결과가 매우 크기 때문에 모듈러 연산 필요
-// 반복적인 부분 문제 연산을 회피하기 위해 메모이제이션 필요
-// 재귀 fibonacci(n) = fibonacci(n - 1) + fibonacci(n - 2)
+// 피보나치 -> 재귀 필요
+// 중복 되는 부분 문제 연산 -> 메모이제이션 필요
+// 지나치게 큰 수에 대한 나눗셈 연산 -> 모듈러 연산 필요
 
 class Solution {
     private val mem = IntArray(100001) { -1 }
 
     fun solution(n: Int): Int {
         for (i in 0..n) {
-            fibonacci(n)
+            fib(i)
         }
-        return fibonacci(n)
+        return fib(n)
     }
 
-    private fun fibonacci(n: Int): Int {
+    private fun fib(n: Int): Int {
         val mod = 1234567
 
+        if (n == 0 || n == 1) return n
         if (mem[n] != -1) return mem[n]
-        if (n == 0 || n == 1) return n % mod
 
-        mem[n] = (fibonacci(n - 1) + fibonacci(n - 2)) % mod
+        mem[n] = (fib(n - 1) + fib (n - 2)) % 1234567
         return mem[n]
     }
 }
