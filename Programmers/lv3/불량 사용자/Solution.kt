@@ -1,45 +1,43 @@
-// (재귀의 매 뎁스에서 선택 가능한 후보가 바뀌는 문제)
+// [불량 사용자]
 
-// 유저 아이디 최대 개수는 8이므로 시간 복잡도 그리 크지 않을 듯
-// 각 불량 아이디 별 후보 목록 만들기
-// 각 불량 아이디의 후보 목록으로부터 조합 가능한 모든 경우의 수를 Set<Set<String>>에 담기
-// 모든 경우의 수 -> 재귀 -> 큰 부분 문제를 작은 부분 문제로 표현할 수 있어야 함
-// 종료 조건만 가지고 점화식 세울 수 없음 -> 패턴
-//
-// 상태: (index, banned) = banned 에 포함된 아이디를 제외하고 index 번쨰의 bans 로부터 가능한 조합
-// 점화: (index, banned) = sigma id among bans[index] of (index + 1, banned + id)
-// 종료: 8개를 초과하는 조합 생성, 혹은 하나의 불량 아이디에 대하여 선택 가능한 아이디가 없음
+// 제제 아이디 하나에 매칭되는 모든 아이디 저장 -> listPerBanned
+
+// listPerBanned 에서 생성 가능한 조합 만들기
+// 상태: (index, listPerBanned, tempBannedSet, totalSet)
+// 종료: index == listPerBanned.size
+// 점화: listPerBanned 1뎁스에서 하나 선택 반복 -> 2 뎁스에서 하나 선택 반복
 
 class Solution {
     fun solution(user_id: Array<String>, banned_id: Array<String>): Int {
-        val bans = banned_id.map { bannedId ->
+        val listPerBanned = banned_id.map { bannedId ->
             user_id.filter { userId ->
-                userId.matches(bannedId.replace("*", ".").toRegex())
+                val regex = Regex(bannedId.replace("*", "."))
+                userId.matches(regex)
             }
         }
 
-        val banned = mutableSetOf<String>()
-        val banSet = mutableSetOf<MutableSet<String>>()
-        count(0, banned, bans, banSet)
-        return banSet.count()
+        val tempBannedSet = mutableSetOf<String>()
+        val totalSet = mutableSetOf<MutableSet<String>>()
+        count(0, listPerBanned, tempBannedSet, totalSet)
+        return totalSet.count()
     }
 
     private fun count(
         index: Int,
-        banned: MutableSet<String>,
-        bans: List<List<String>>,
-        banSet: MutableSet<MutableSet<String>>
+        listPerBanned: List<List<String>>,
+        tempBannedSet: MutableSet<String>,
+        totalSet: MutableSet<MutableSet<String>>
     ) {
-        if (index == bans.size) {
-            banSet.add(banned.toMutableSet())
+        if (index == listPerBanned.size) {
+            totalSet.add(tempBannedSet.toMutableSet()) // 한 번 추가된 tempBannedSet의 추가 변형 방지
             return
         }
 
-        for (ban in bans[index]) {
-            if (banned.contains(ban)) continue
-            banned.add(ban)
-            count(index + 1, banned, bans, banSet)
-            banned.remove(ban)
+        for (bannedId in listPerBanned[index]) {
+            if (tempBannedSet.contains(bannedId)) continue
+            tempBannedSet.add(bannedId)
+            count(index + 1, listPerBanned, tempBannedSet, totalSet)
+            tempBannedSet.remove(bannedId)
         }
     }
 }
