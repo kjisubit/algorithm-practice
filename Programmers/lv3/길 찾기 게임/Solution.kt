@@ -1,58 +1,75 @@
 // [길 찾기 게임]
 
-// nodeinfo 데이터를 y 좌표 기준으로 내림차순 정렬
+// 클래스 -> 노드
+// -- Node Class (x, y, value, left, right)
 
-// Node Class (x, y, root, left, right)
+// nodeinfo 노드 클래스 변환
+// y 좌표 기준 오름차순 정렬
 
-// 정렬 결과를 노드로 재구성
-// -> buildTree(), insert()
+// 메서드 -> 트리 생성
+// generateTree()
 
-// 전위, 후위 탐색 결과 리턴
+// 메서드 -> 재귀 삽입
+// add()
+
+// 메서드 -> 전위 순회
+// pre()
+
+// 메서드 -> 후위 순회
+// post()
 
 class Solution {
-    private class Node(val x: Int, val y: Int, val num: Int, var left: Node?, var right: Node?)
+    private class Node(val x: Int, val y: Int, val value: Int, var left: Node?, var right: Node?)
 
-    private fun insert(root: Node, child: Node) {
-        if (child.x < root.x) {
-            if (root.left == null) root.left = child
-            else insert(root.left!!, child)
-        } else {
-            if (root.right == null) root.right = child
-            else insert(root.right!!, child)
-        }
-    }
-
-    private fun buildTree(nodes: List<Node>): Node {
+    private fun generateTree(nodes: List<Node>): Node {
         val root = nodes[0]
         for (i in 1 until nodes.size) {
-            insert(root, nodes[i])
+            add(root, nodes[i])
         }
         return root
     }
 
-    private fun pre(root: Node, order: MutableList<Int>) {
-        order.add(root.num)
-        root.left?.let { pre(it, order) }
-        root.right?.let { pre(it, order) }
+    private fun add(parent: Node, child: Node) {
+        if (child.x < parent.x) {
+            if (parent.left == null) parent.left = child
+            else add(parent.left!!, child)
+        } else {
+            if (parent.right == null) parent.right = child
+            else add(parent.right!!, child)
+        }
     }
 
-    private fun post(root: Node, order: MutableList<Int>) {
-        root.left?.let { post(it, order) }
-        root.right?.let { post(it, order) }
-        order.add(root.num)
+    private fun pre(tree: Node, order: MutableList<Int>) {
+        order.add(tree.value)
+        tree.left?.let {
+            pre(it, order)
+        }
+        tree.right?.let {
+            pre(it, order)
+        }
+    }
+
+    private fun post(tree: Node, order: MutableList<Int>) {
+        tree.left?.let {
+            post(it, order)
+        }
+        tree.right?.let {
+            post(it, order)
+        }
+        order.add(tree.value)
     }
 
     fun solution(nodeinfo: Array<IntArray>): Array<IntArray> {
-        val nodes = nodeinfo.mapIndexed { index, info ->
-            Node(info[0], info[1], index + 1, null, null)
+        val nodes = nodeinfo.mapIndexed { i, intArray ->
+            Node(intArray[0], intArray[1], i + 1, null, null)
         }.sortedWith(compareBy { -it.y })
 
-        val root = buildTree(nodes)
+        val tree = generateTree(nodes)
 
         val preOrder = mutableListOf<Int>()
-        pre(root, preOrder)
+        pre(tree, preOrder)
         val postOrder = mutableListOf<Int>()
-        post(root, postOrder)
+        post(tree, postOrder)
 
         return arrayOf(preOrder.toIntArray(), postOrder.toIntArray())
     }
