@@ -1,27 +1,41 @@
 // [이상한 문자 만들기]
 
 // 문자열 순회
-
-// isEven 플래그 초기값 true
-// isEven 플래그는 문자열 순회할 때마다 반전
-// isEven 플래그는 공백 마주할 때마다 true
-// isEven 플래그에 따라 대소문자 변환
+// 짝수 플래그 true
+// 매 순환 마다 짝수 플래그 뒤집기
+// 공백이 될 때마다 짝수 초기화
 
 class Solution {
     fun solution(s: String): String {
-        var isEven = true
         val sb = StringBuilder()
 
-        s.forEach {
-            if (it == ' ') {
+        var isEven = true
+        val gap = 'a' - 'A'
+
+        s.forEach { c ->
+            if (c == ' ') {
                 isEven = true
-                sb.append(' ')
-            } else {
-                if (isEven) sb.append(it.uppercaseChar())
-                else sb.append(it.lowercaseChar())
+                sb.append(c)
+            }
+            else {
+                if (isEven) {
+                    if (c in 'a'..'z') {
+                        sb.append(c - gap)
+                    } else {
+                        sb.append(c)
+                    }
+                } else {
+                    if (c in 'a'..'z') {
+                        sb.append(c)
+                    } else {
+                        sb.append(c + gap)
+                    }
+                }
+
                 isEven = !isEven
             }
         }
+
         return sb.toString()
     }
 }
