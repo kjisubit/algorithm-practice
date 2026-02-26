@@ -7,12 +7,12 @@
 class Solution {
     fun solution(routes: Array<IntArray>): Int {
         var count = 0
-        routes.sortWith(compareBy { it[1] })
+        var minValue = Integer.MIN_VALUE
+        val sortedRoutes = routes.sortedWith(compareBy { it[1] })
 
-        var minInstallPoint = Integer.MIN_VALUE
-        for (route in routes) {
-            if (minInstallPoint >= route[0] && minInstallPoint <= route[1]) continue
-            minInstallPoint = route[1]
+        for (route in sortedRoutes) {
+            if (minValue >= route[0] && minValue <= route[1]) continue
+            minValue = route[1]
             count++
         }
 
