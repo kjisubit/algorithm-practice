@@ -1,25 +1,26 @@
 // [이중 우선순위 큐]
 
-// min heap, max heap 두 개의 우선순위 큐로 구성된 한 개의 이중 우선순위 큐 정의
+// 클래스
+// -- 멤버: 우선순위 큐 두개, 값 레코더 하나
+// -- maxPq, minPq, recorder
 
-// 단, 하나의 큐에서 지워진 값을 중복 삭제하거나 이미 삭제된 값을 탐색하는 일이 발생하지 않도록,
-// 값의 현황을 실시간으로 기록했다가 나중에 지우는 지연 삭제 개념 적용
-
-// remove & poll 연산 수행할 시, 우선순위 큐 끝자락(heap)에 위치한 지연 삭제 대상을 사전에 제거하도록
+// 프로세스
+// -- 갑 입력/삭제 시 레코더 갱신
+// -- 삭제/읽기 과정에서 레코더에 0으로 기록된 값은 힙으로부터 미리 제거할 것 (cleanHeap)
 
 import java.util.*
 
 class Solution {
-    private class DoublePriorityQueue {
+    private class Dpq {
         private val minPq = PriorityQueue<Int>()
         private val maxPq = PriorityQueue<Int>(compareBy { -it })
-        private val valueCounter = mutableMapOf<Int, Int>()
+        private val recorder = mutableMapOf<Int, Int>()
 
-        fun cleanHeap(pq: PriorityQueue<Int>) {
+        private fun cleanHeap(pq: PriorityQueue<Int>) {
             while (pq.isNotEmpty()) {
                 val top = pq.peek()
-                val cnt = valueCounter[top] ?: 0
-                if (cnt == 0) pq.poll()
+                val count = recorder[top] ?: 0
+                if (count == 0) pq.poll()
                 else break
             }
         }
@@ -27,51 +28,58 @@ class Solution {
         fun add(value: Int) {
             minPq.add(value)
             maxPq.add(value)
-            valueCounter.putIfAbsent(value, 0)
-            valueCounter[value] = valueCounter[value]!! + 1
+            recorder.putIfAbsent(value, 0)
+            recorder[value] = recorder[value]!! + 1
         }
 
         fun removeMin() {
             cleanHeap(minPq)
             if (minPq.isNotEmpty()) {
-                val del = minPq.poll()
-                valueCounter[del] = valueCounter[del]!! - 1
+                val value = minPq.poll()
+                recorder[value] = recorder[value]!! - 1
             }
         }
 
         fun removeMax() {
             cleanHeap(maxPq)
             if (maxPq.isNotEmpty()) {
-                val del = maxPq.poll()
-                valueCounter[del] = valueCounter[del]!! - 1
+                val value = maxPq.poll()
+                recorder[value] = recorder[value]!! - 1
             }
         }
 
-        fun min(): Int {
+        fun pollMin(): Int {
             cleanHeap(minPq)
-            return if (minPq.isNotEmpty()) minPq.peek() else 0
+            return if (minPq.isEmpty()) 0 else minPq.poll()
         }
 
-        fun max(): Int {
+        fun pollMax(): Int {
             cleanHeap(maxPq)
-            return if (maxPq.isNotEmpty()) maxPq.peek() else 0
+            return if (maxPq.isEmpty()) 0 else maxPq.poll()
         }
     }
 
     fun solution(operations: Array<String>): IntArray {
-        val dpq = DoublePriorityQueue()
-        for (operation in operations) {
-            val tokens = operation.split(" ")
+        val dpq = Dpq()
+        operations.forEach {
+            val tokens = it.split(" ")
             val command = tokens[0]
-            val value = tokens[1]
+            val num = tokens[1].toInt()
+
             when (command) {
-                "I" -> dpq.add(value.toInt())
+                "I" -> {
+                    dpq.add(num)
+                }
+
                 "D" -> {
-                    if (value == "1") dpq.removeMax()
+                    if (num == 1) dpq.removeMax()
                     else dpq.removeMin()
                 }
             }
         }
-        return intArrayOf(dpq.max(), dpq.min())
+
+        val max = dpq.pollMax()
+        val min = dpq.pollMin()
+        return intArrayOf(max, min)
     }
 }
