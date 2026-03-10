@@ -1,32 +1,34 @@
 // [모음 사전]
 
-// 딕셔너리 생성
-// 입력값의 인덱스 위치 리턴
+// 프로세스
+// -- 생성 가능한 모든 단어로 구성된 사전 만들기
+// -- 입력 단어가 위치한 인덱스 탐색
 
-// 점화식
-// (word) = (word) + (word + A) + (word + E) + (word + I) ...
-// 구조상 (word)의 사전 저장이 필수
-
-// 종료 조건
-// word 길이 == 5
+// 메서드 -> makeDictionary
+// -- 재귀 필요
+// -- 상태: word로 시작하는 단어 (word)
+// -- 점화식: (word) = word + (word + A) + (word + E) + ...  + (word + U)
+// -- 종료: word의 길이가 5인 경우
 
 class Solution {
     private val chars = arrayOf('A', 'E', 'I', 'O', 'U')
 
-    private fun generate(word: String, dict: MutableList<String>) {
+    private fun makeDictionary(word: String, dictionary: MutableList<String>) {
         if (word.length > 5) return
 
-        if (word.isNotEmpty()) dict.add(word)
+        if (word.isNotEmpty()) dictionary.add(word)
 
         for (char in chars) {
-            generate(word + char, dict)
+            val newWord = word + char
+            makeDictionary(newWord, dictionary)
         }
     }
 
     fun solution(word: String): Int {
-        val dict = mutableListOf<String>()
-        generate("", dict)
+        val dictionary = mutableListOf<String>()
+        makeDictionary("", dictionary)
 
-        return dict.indexOf(word) + 1
+        val index = dictionary.indexOf(word)
+        return index + 1
     }
 }
