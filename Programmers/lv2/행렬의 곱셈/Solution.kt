@@ -1,19 +1,24 @@
 // [행렬의 곱셈]
 
-// 행렬 곱 크기 = A 행렬의 행 * B 행렬의 열
+// (a, b) * (c, d) = (a, d)
 
-class Solution004 {
+class Solution {
     fun solution(arr1: Array<IntArray>, arr2: Array<IntArray>): Array<IntArray> {
-        val answer = Array(arr1.size) { IntArray(arr2[0].size) }
-        for (i in 0 until arr1.size) {
-            for (j in 0 until arr2[0].size) {
-                var result = 0
-                for (k in 0 until arr1[0].size) {
-                    result += arr1[i][k] * arr2[k][j]
+        val resultRowSize = arr1.size
+        val resultColumnSize = arr2[0].size
+        val commonSize = arr1[0].size
+        var resultArray = Array(resultRowSize) { IntArray(resultColumnSize) }
+
+        for (rowIndex in 0 until resultRowSize) {
+            for (columnIndex in 0 until resultColumnSize) {
+                var acc = 0
+                for (operationCount in 0 until commonSize) {
+                    acc += arr1[rowIndex][operationCount] * arr2[operationCount][columnIndex]
                 }
-                answer[i][j] = result
+
+                resultArray[rowIndex][columnIndex] = acc
             }
         }
-        return answer
+        return resultArray
     }
 }
