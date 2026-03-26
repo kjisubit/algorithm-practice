@@ -1,29 +1,31 @@
 // [큰 수 만들기]
 
-// 입력값의 일부만 남기고 모두 제거하되, 입력 순서 유지 -> 스택
-// 입력값 순환마다 스택 최상단에 위치한 값보다 클 경우, 최상단 교체
+// 조합 -> 시간 복잡도 초과
 
-class Solution {
+// 순서를 유지하며 숫자 제거 -> 스택
+class Solution063Test {
     fun solution(number: String, k: Int): String {
-        var removeCount = k
+        var removeCount = 0
 
-        val ad = ArrayDeque<Int>()
-        val numList = number.map { it.digitToInt() }
+        var stack = ArrayDeque<Int>()
+        val numList = number.map { it - '0' }
 
-        for (n in numList) {
-            while (ad.isNotEmpty() && n > ad.last() && removeCount > 0) {
-                ad.removeLast()
-                removeCount--
+        stack.addLast(numList[0])
+        for (i in 1 until numList.size) {
+            val num = numList[i]
+            while (stack.isNotEmpty() && num > stack.last() && removeCount < k) {
+                stack.removeLast()
+                removeCount++
             }
 
-            ad.addLast(n)
+            stack.addLast(num)
         }
 
-        while (removeCount > 0) {
-            ad.removeLast()
-            removeCount--
+        while (removeCount < k) {
+            stack.removeLast()
+            removeCount++
         }
 
-        return ad.joinToString("")
+        return stack.joinToString("")
     }
 }
