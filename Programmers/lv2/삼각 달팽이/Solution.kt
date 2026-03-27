@@ -1,53 +1,52 @@
 // [삼각 달팽이]
 
 // 좌표 이동 문제
-// 하, 우, 상좌
 
-// 방향 틀기 연속 2번 실패 시 종료
-
-// 방향 틀기 조건
-// 진행하고자 하는 지점에 숫자 존재
-// 범위 초과
+// 프로세스
+// -- n * n 어레이 생성
+// -- 최대 범위 도달, 혹은 이미 존재하는 값 마주할 시 방향 변경
+// -- 방향 변경 연속 2번 실패 시 작업 종료
 
 class Solution {
-    private val dx = intArrayOf(0, 1, -1)
-    private val dy = intArrayOf(1, 0, -1)
+    // 하, 우, 상좌
+    val dx = intArrayOf(0, 1, -1)
+    val dy = intArrayOf(1, 0, -1)
 
     fun solution(n: Int): IntArray {
-        val square = Array<IntArray>(n) { IntArray(n) }
+        val array = Array(n) { IntArray(n) }
 
         var d = 0
         var v = 1
-        var y = 0
         var x = 0
+        var y = 0
+
+        array[y][x] = v
 
         while (true) {
-            square[y][x] = v++
-
+            // 신규 좌표 검증
             var ny = y + dy[d]
             var nx = x + dx[d]
-
-            if (ny == n || ny == -1 || nx == n || nx == -1 || square[ny][nx] != 0) {
+            if (ny == n || ny < 0 || nx == n || nx < 0 || array[ny][nx] != 0) {
                 d = (d + 1) % 3
                 ny = y + dy[d]
                 nx = x + dx[d]
 
-                if (ny == n || ny == -1 || nx == n || nx == -1 || square[ny][nx] != 0) break
+                if (ny == n || ny < 0 || nx == n || nx < 0 || array[ny][nx] != 0) break
             }
 
             y = ny
             x = nx
+            array[y][x] = ++v
+            println("$y $x $v")
         }
 
-        val answer = IntArray(v - 1)
-        var index = 0
-        for (y in 0 until n) {
+        val answer = mutableListOf<Int>()
+        for (y in 0..n - 1) {
             for (x in 0..y) {
-                answer[index] = square[y][x]
-                index++
+                val num = array[y][x]
+                answer.add(num)
             }
         }
-
-        return answer
+        return answer.toIntArray()
     }
 }
