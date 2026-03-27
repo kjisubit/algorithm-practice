@@ -9,8 +9,8 @@
 
 class Solution {
     // 하, 우, 상좌
-    val dx = intArrayOf(0, 1, -1)
-    val dy = intArrayOf(1, 0, -1)
+    private val dx = intArrayOf(0, 1, -1)
+    private val dy = intArrayOf(1, 0, -1)
 
     fun solution(n: Int): IntArray {
         val array = Array(n) { IntArray(n) }
