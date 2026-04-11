@@ -1,33 +1,36 @@
 // [타겟 넘버]
 
-// DFS를 재귀가 아닌 스택으로 구현하는 문제
-// 상태를 나타낼 별도의 클래스 지정
+// 프로세스
+// 가능한 모든 경우의 수 테스트 -> DFS -> 스택
+// 목표 값에 도달한 케이스 발생할 때마다 count
 
 class Solution {
-    private class State(val index: Int, val acc: Int)
+    private class State(val opCnt: Int, val value: Int)
 
     fun solution(numbers: IntArray, target: Int): Int {
-        val ad = ArrayDeque<State>()
-        ad.addLast(State(0, 0))
-
         var count = 0
 
-        while (ad.isNotEmpty()) {
-            val state = ad.removeLast()
+        val stack = ArrayDeque<State>()
+        stack.addLast(State(0, 0))
 
-            if (state.index == numbers.size) {
-                if (state.acc == target) count++
+        while (stack.isNotEmpty()) {
+            val topNode = stack.removeLast()
+
+            if (topNode.opCnt == numbers.size) {
+                if (topNode.value == target) count++
                 continue
             }
 
-            ad.addLast(State(state.index + 1, state.acc - numbers[state.index]))
-            ad.addLast(State(state.index + 1, state.acc + numbers[state.index]))
+            val childFirst = State(topNode.opCnt + 1, topNode.value + numbers[topNode.opCnt])
+            stack.addLast(childFirst)
+
+            val childSecond = State(topNode.opCnt + 1, topNode.value - numbers[topNode.opCnt])
+            stack.addLast(childSecond)
         }
 
         return count
     }
 }
-
 
 
 
