@@ -6,15 +6,15 @@
 class Solution {
     fun solution(array: IntArray, commands: Array<IntArray>): IntArray {
         val answer = IntArray(commands.size)
+
         commands.forEachIndexed { i, command ->
             val startIndex = command[0] - 1
             val endIndex = command[1] - 1
             val targetIndex = command[2] - 1
 
-            val sliced = array.slice(startIndex..endIndex).sorted()
-            val target = sliced[targetIndex]
-            answer[i] = target
+            answer[i] = array.slice(startIndex..endIndex).sorted()[targetIndex]
         }
+
         return answer
     }
 }
