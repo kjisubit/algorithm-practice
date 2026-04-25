@@ -5,22 +5,24 @@
 // 지나치게 큰 수에 대한 나눗셈 연산 -> 모듈러 연산 필요
 
 class Solution {
-    private val mem = IntArray(100001) { -1 }
-
     fun solution(n: Int): Int {
+        val mem = IntArray(n + 1) { -1 }
+
         for (i in 0..n) {
-            fib(i)
+            fibo(i, mem)
         }
-        return fib(n)
+
+        return fibo(n, mem)
     }
 
-    private fun fib(n: Int): Int {
+    private fun fibo(n: Int, mem: IntArray): Int {
         val mod = 1234567
 
         if (n == 0 || n == 1) return n
+
         if (mem[n] != -1) return mem[n]
 
-        mem[n] = (fib(n - 1) + fib (n - 2)) % 1234567
+        mem[n] = (fibo(n - 1, mem) + fibo(n - 2, mem)) % mod
         return mem[n]
     }
 }
