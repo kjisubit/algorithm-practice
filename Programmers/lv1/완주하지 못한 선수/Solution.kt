@@ -1,20 +1,23 @@
 // [완주하지 못한 선수]
 
-// 참가자 중에서 완주자 목록에 없는 명단 하나씩 제거
+// 참여자 맵 생성 (이름, 완료 수)
+
+// 완료자 순회 -> 참여자 맵에서 하나씩 차감
 
 class Solution {
     fun solution(participant: Array<String>, completion: Array<String>): String {
-        val countMap = mutableMapOf<String, Int>()
-        for (name in participant) {
-            countMap.putIfAbsent(name, 0)
-            countMap[name] = countMap[name]!! + 1
+        val participantMap = mutableMapOf<String, Int>()
+        for (p in participant) {
+            participantMap.putIfAbsent(p, 0)
+            participantMap[p] = participantMap[p]!! + 1
         }
 
-        for (name in completion) {
-            countMap[name] = countMap[name]!! - 1
-            if (countMap[name] == 0) countMap.remove(name)
+        for (c in completion) {
+            val value = participantMap[c]!!
+            participantMap[c] = value - 1
+            if (participantMap[c] == 0) participantMap.remove(c)
         }
 
-        return countMap.keys.first()
+        return participantMap.keys.first()
     }
 }
