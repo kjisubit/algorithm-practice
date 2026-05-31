@@ -1,22 +1,23 @@
-// 메서드 1 -> char에 대하여 push
+// 1. 문자열 순회
+
+// 2. 대/소문자, 공백에 맞춰 push 로직 분기
 
 class Solution {
     private fun push(c: Char, n: Int): Char {
-        if (c == ' ') return ' '
+        if (c == ' ') return ' ' // 공백
 
-        val offset = if (c.isUpperCase()) 'A' else 'a'
-        val alphabetSize = 'z' - 'a' + 1
+        val range = 'z' - 'a' + 1
+        val startPoint = if (c in 'a'..'z') 'a' else 'A'
 
-        val position = (c.code + n - offset.code) % alphabetSize
-        return offset + position
+        val pushed = startPoint + (c.code - startPoint.code + n) % range
+        return pushed
     }
 
     fun solution(s: String, n: Int): String {
         val sb = StringBuilder()
 
         for (c in s) {
-            val pushed = push(c, n)
-            sb.append(pushed)
+            sb.append(push(c, n))
         }
 
         return sb.toString()
