@@ -1,43 +1,41 @@
 // [쿼드압축 후 개수 세기]
 
-// 분할 반복 -> 재귀
+// 프로세스
+// -- 사각형 내부 모든 수 검사
+// -- 숫자 통일 가능할 시, 해당 숫자 리턴
+// -- 숫자 통일 불가할 시, 사각형 내부 모든 수 검사 (이후 반복)
 
-// [class Count]
-// property -> zeros, ones
-// method -> add
-
-// [method count]
-// 점화식
-// (offsetY, offsetX, l) =
-// (offsetY, offsetX, l/2)+ (offsetY, offsetX + l/2, l/2) + (offsetY + l/2, offsetX, l/2) + (offsetY + l/2, offsetX + l/2, l/2)
-// 종료 조건 -> 범위 내 모든 숫자가 동일한 경우
+// 1. 재귀 필요
+// 상태: (startY, startX, length) = 너비/높이가 length이고 시작점이 (startY, startX)인 사각형 내부의 0과 1 개수
+// 종료: 통일 가능
+// 점화: (startY, startX, length) = (startY, startX, length/2) + (startY, startX + length/2, length/2)
+// + (startY + length/2, startX, length/2) + (startY/2 + length/2, startX/2 + length/2, length/2)
 
 class Solution {
-    private class Count(val zeros: Int, val ones: Int) {
-        fun add(count: Count): Count {
-            return Count(zeros + count.zeros, ones + count.ones)
+    private class ZeroOne(val zeros: Int, val ones: Int) {
+        fun add(zeroOne: ZeroOne): ZeroOne {
+            return ZeroOne(zeros + zeroOne.zeros, ones + zeroOne.ones)
         }
     }
 
-    private fun count(offsetY: Int, offsetX: Int, length: Int, arr: Array<IntArray>): Count {
-        val newLength = length / 2
-        for (y in offsetY until offsetY + length) {
-            for (x in offsetX until offsetX + length) {
-                if (arr[y][x] != arr[offsetY][offsetX]) {
-                    return count(offsetY, offsetX, newLength, arr)
-                        .add(count(offsetY, offsetX + newLength, newLength, arr))
-                        .add(count(offsetY + newLength, offsetX, newLength, arr))
-                        .add(count(offsetY + newLength, offsetX + newLength, newLength, arr))
+    private fun count(startY: Int, startX: Int, length: Int, arr: Array<IntArray>): ZeroOne {
+        for (y in startY until startY + length) {
+            for (x in startX until startX + length) {
+                if (arr[y][x] != arr[startY][startX]) {
+                    return count(startY, startX, length / 2, arr)
+                        .add(count(startY, startX + length / 2, length / 2, arr))
+                        .add(count(startY + length / 2, startX, length / 2, arr))
+                        .add(count(startY + length / 2, startX + length / 2, length / 2, arr))
                 }
             }
         }
 
-        if (arr[offsetY][offsetX] == 0) return Count(1, 0)
-        else return Count(0, 1)
+        if (arr[startY][startX] == 1) return ZeroOne(0, 1)
+        else return ZeroOne(1, 0)
     }
 
     fun solution(arr: Array<IntArray>): IntArray {
-        val count = count(0, 0, arr.size, arr)
-        return intArrayOf(count.zeros, count.ones)
+        val zeroOne = count(0, 0, arr.size, arr)
+        return intArrayOf(zeroOne.zeros, zeroOne.ones)
     }
 }
