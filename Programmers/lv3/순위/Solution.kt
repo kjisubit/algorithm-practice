@@ -1,51 +1,54 @@
 // [순위]
 
-// 인접행렬 생성 (방향 그래프)
-// 메서드1: countWin 카운트
-// 메서드2: countLose 카운트
+// 1. 입력값으로 인접 행렬 만들기
+// 결과 -> T, 그 외 -> F
 
-class Solution {
+// 2. 승리, 패배 카운트 하기
+// u 순회 후 각 u에 대한 승리 및 패배 카운트
+// 총 합이 n - 1인 케이스에 한해 카운트 가능
+
+class Solution{
     fun solution(n: Int, results: Array<IntArray>): Int {
-        var graph = Array(n) { BooleanArray(n) }
-        for (r in results) {
-            val u = r[0] - 1
-            val v = r[1] - 1
+        val graph = Array<BooleanArray>(n) { BooleanArray(n) }
+        results.forEach { result ->
+            val u = result[0] - 1
+            val v = result[1] - 1
             graph[u][v] = true
         }
 
-        var total = 0
+        var answer = 0
         for (u in 0 until n) {
-            val win = countWin(u, graph, BooleanArray(n))
-            val lose = countLoss(u, graph, BooleanArray(n))
-            if (win + lose + 1 == n) total++
+            val isVisited = BooleanArray(n)
+            val winCount = countWin(u, graph, isVisited)
+            val loseCount = countLose(u, graph, isVisited)
+            if (winCount + loseCount == n - 1) answer++
         }
-
-        return total
+        return answer
     }
 
     private fun countWin(u: Int, graph: Array<BooleanArray>, isVisited: BooleanArray): Int {
         var count = 0
-        for (v in 0 until graph[u].size) {
-            if (!graph[u][v] || isVisited[v]) continue
+        for (v in 0 until graph.size) {
+            if (isVisited[v] || !graph[u][v]) continue
 
             if (graph[u][v]) {
-                count++
                 isVisited[v] = true
+                count++
                 count += countWin(v, graph, isVisited)
             }
         }
         return count
     }
 
-    private fun countLoss(u: Int, graph: Array<BooleanArray>, isVisited: BooleanArray): Int {
+    private fun countLose(v: Int, graph: Array<BooleanArray>, isVisited: BooleanArray): Int {
         var count = 0
-        for (v in 0 until graph[u].size) {
-            if (!graph[v][u] || isVisited[v]) continue
+        for (u in 0 until graph.size) {
+            if (isVisited[u] || !graph[u][v]) continue
 
-            if (graph[v][u]) {
+            if (graph[u][v]) {
+                isVisited[u] = true
                 count++
-                isVisited[v] = true
-                count += countLoss(v, graph, isVisited)
+                count += countLose(u, graph, isVisited)
             }
         }
         return count
