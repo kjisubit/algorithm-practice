@@ -1,40 +1,40 @@
-// [다리를 지나는 트럭]
+// FIFO 처리 -> 큐
+// 큐로 구현한 브릿지에 트럭 하나 올려놓고 시작
+// 시간이 지날 때마다 트럭 진입 가능 여부 체크
+// 트럭 인덱스가 끝짜락에 도달할 경우 종료
+// 브릿지에 남은 마지막 트럭 추출까지 걸린 시간 리턴
 
-// 순차 처리 -> 큐
-
-class Solution0 {
+class Solution {
     fun solution(bridge_length: Int, weight: Int, truck_weights: IntArray): Int {
         var time = 0
+        var bridgeWeight = 0
         var truckIndex = 0
 
-        val bridge = ArrayDeque<Int>()
-        for (i in 1..bridge_length) {
-            bridge.addLast(0)
+        val bridgeQueue = ArrayDeque<Int>()
+        for (i in 0 until bridge_length) {
+            bridgeQueue.add(-1)
         }
-        var bridgeWeight = 0
 
         while (truckIndex < truck_weights.size) {
-            // 트럭 무게
-            val truckWeight = truck_weights[truckIndex]
-
-            // 매 초마다 강제 배출
             time++
-            bridgeWeight -= bridge.removeFirst()
 
-            // 허용 가능한 무게에서 진입 허용
-            if (bridgeWeight + truckWeight <= weight) {
-                bridge.addLast(truckWeight)
-                bridgeWeight += truckWeight
+            val removed = bridgeQueue.removeFirst()
+            if (removed != -1) bridgeWeight -= truck_weights[removed]
+
+            if (bridgeWeight + truck_weights[truckIndex] <= weight) {
+                bridgeQueue.addLast(truckIndex)
+                bridgeWeight += truck_weights[truckIndex]
                 truckIndex++
             } else {
-                bridge.addLast(0)
+                bridgeQueue.addLast(-1)
             }
         }
 
-        // 다리에 트럭이 존재할 경우, 모두 제거할 때까지 배출
         while (bridgeWeight > 0) {
             time++
-            bridgeWeight -= bridge.removeFirst()
+
+            val removed = bridgeQueue.removeFirst()
+            if (removed != -1) bridgeWeight -= truck_weights[removed]
         }
 
         return time
