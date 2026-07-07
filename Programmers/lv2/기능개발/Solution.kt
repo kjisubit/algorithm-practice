@@ -1,41 +1,41 @@
 // [기능 개발]
-// progresses 순회하여 큐에 저장
-// 작업이 완료되는대기까지 걸리는 시간 expiration 계산
-// 작업이 완료될 때마다 count 추가
-// expiration 갱신되는 시간에 완료되는 누적 count 기록
-// 마지막에 검사한 작업에 대한 count 기록되지 않았으므로 추가 기록
-// 완료된 작업은 큐에서 제거
 
-import kotlin.math.ceil
+// 큐에 작업 프로그레스 등록
 
-class Solution {
+// 작업 추출 후, 100 달성까지의 기간 계산
+
+// 해당 기간 동안 작업이 완료되는대로 큐에서 제거하고, 제거 횟수 만큼 카운트 하여 어레이에 추가
+
+import kotlin.math.*
+
+class Solution{
     fun solution(progresses: IntArray, speeds: IntArray): IntArray {
-        val q = ArrayDeque<Int>()
-
+        val queue = ArrayDeque<Int>()
         for (i in progresses.indices) {
-            q.addLast(i)
+            queue.addLast(i)
         }
 
         val answer = mutableListOf<Int>()
 
-        var day = 0
-        var count = 0
-        while (q.isNotEmpty()) {
-            val i = q.removeFirst()
-            val expiration = ceil((100 - progresses[i]).toDouble() / speeds[i]).toInt()
+        val index = queue.removeFirst()
+        var dayRequired = ceil((100 - progresses[index]).toDouble() / speeds[index]).toInt()
+        var currentDay = dayRequired
+        var count = 1
 
-            if (expiration > day) {
-                if (day != 0) {
-                    answer.add(count)
-                    count = 0
-                }
-                day = expiration
+        while (queue.isNotEmpty()) {
+            val index = queue.removeFirst()
+            dayRequired = ceil((100 - progresses[index]).toDouble() / speeds[index]).toInt()
+
+            if (dayRequired <= currentDay) {
+                count++
+            } else {
+                currentDay = dayRequired
+                answer.add(count)
+                count = 1
             }
-
-            count++
         }
-        answer.add(count)
 
+        answer.add(count)
         return answer.toIntArray()
     }
 }
