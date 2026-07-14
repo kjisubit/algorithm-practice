@@ -1,54 +1,42 @@
 // [디스크 컨트롤러]
 
-// 수행 시간이 짧은 작업부터 노출되도록 정렬 -> PriorityQueue
+// 입력값을 q에 저장하고, 당장 실행가능한 작업은 pq에 저장
 
-// q = 작업 요청 시간에 도달하지 못한 작업
-// pq = 요청 시간은 지났으나 아직 시작되지 않은 작업
+// q와 pq가 텅 빌 때까지 다음의 작업 반복
+// q에서 현재 시간에 실행 가능한 작업을 추출한 후 pq에 저장
+// pq에 작업이 존재할 경우 -> pq 작업 수행 후 현재 시간, 누적 실행 시간 갱신
+// pq에 작업이 존재하지 않을 경우 -> 현재 시간 q에서 가장 이른 작업의 요청 시간으로 갱신
 
-// Job 클래스
-// 멤버 - startTime, execTime
-
-// time = 현재 시간
-// 요청 부터 종료까지 누적 시간 = exec
-
-import java.util.*
+import java.util.PriorityQueue
 
 class Solution {
-    private class Job(val startTime: Int, val execTime: Int)
+    private class Job(val requestTime: Int, val execTime: Int)
 
     fun solution(rawJobs: Array<IntArray>): Int {
-        val jobs = rawJobs.map {
-            Job(it[0], it[1])
-        }.sortedWith(compareBy { it.startTime })
+        val q = ArrayDeque<Job>()
+        rawJobs.map { Job(it[0], it[1]) }.sortedWith(compareBy { it.requestTime }).forEach { q.add(it) }
 
-        val q = ArrayDeque<Job>(jobs)
         val pq = PriorityQueue<Job>(compareBy { it.execTime })
 
-        var time = 0
+        var currentTime = 0
         var totalDuration = 0
 
         while (q.isNotEmpty() || pq.isNotEmpty()) {
-            // 현재 시간에 실행 가능한 작업이 존재할 경우, pq에 저장
-            while (q.isNotEmpty() && q.first().startTime <= time) {
+            while (q.isNotEmpty() && q.first().requestTime <= currentTime) {
                 pq.add(q.removeFirst())
             }
 
-            // 실행 가능한 작업이 존재하지 않을 경우, q의 첫번째 작업으로 현재 시간 갱신
-            if (pq.isEmpty()) {
-                time = q.first.startTime
-            }
-            // 실행 가능한 작업이 존재할 경우, 수행 시간이 가장 작은 작업 수행 후 현재 시간 갱신
-            else {
+            if (pq.isNotEmpty()) {
                 val job = pq.poll()
 
-                val nTime = time + job.execTime
-                val duration = time - job.startTime + job.execTime
-
-                time = nTime
-                totalDuration += duration
+                val newCurrentTime = currentTime + job.execTime
+                totalDuration += currentTime - job.requestTime + job.execTime
+                currentTime = newCurrentTime
+            } else {
+                currentTime = q.first().requestTime
             }
         }
 
-        return totalDuration / jobs.size
+        return totalDuration / rawJobs.size
     }
 }
