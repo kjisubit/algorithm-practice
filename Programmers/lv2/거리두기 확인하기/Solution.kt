@@ -1,53 +1,43 @@
 // [거리두기 확인하기]
 
-// 좌표 이동 문제 -> 변화량 사용
-
-// 프로세스
-// -- places 순회
-// -- 대기실 하나를 2차원 어레이로 변환
-// -- 2차원 어레이 순회
-// -- 맨해튼 거리 1 검사 -> 현재 위치가 p인 경우, 상하좌우 검사 후 p가 하나라도 있으면 실패
-// -- 맨해튼 거리 2 검사 -> 맨해튼 거리 1 위치가 o인 경우, (왔던 경로를 제외하고) 상하좌우 검사 후 p가 하나라도 있으면 실패
+// places 순회
+// 각 places 별 거리두기 검사
+// 각 사람 별 거리두기 검사
+// 맨하탄 거리 검사
+// 1의 거리 위치에 P가 있을 경우 -> 거리두기 실패
+// 1의 거리 위치에 O가 있을 경우 -> O 기준으로 1의 거리 추가 검사 -> P 발견 시 거리두기 실패
 
 class Solution {
-    private val dx = intArrayOf(0, 0, -1, 1)
     private val dy = intArrayOf(-1, 1, 0, 0)
+    private val dx = intArrayOf(0, 0, -1, 1)
 
     fun solution(places: Array<Array<String>>): IntArray {
-        val answer = mutableListOf<Int>()
-        for (place in places) {
-            val room = place.map { it.toCharArray() }.toTypedArray()
-            val result = isRoomDistanced(room)
-            if (result) {
-                answer.add(1)
-            } else {
-                answer.add(0)
-            }
+        val answer = IntArray(5)
+        for (i in places.indices) {
+            val place = places[i].map { it.toCharArray() }.toTypedArray()
+            answer[i] = if (isPlaceDistanced(place)) 1 else 0
         }
-        return answer.toIntArray()
+        return answer
     }
 
-    // 강의실 검사
-    private fun isRoomDistanced(room: Array<CharArray>): Boolean {
-        for (y in room.indices) {
-            for (x in room.indices) {
-                val c = room[y][x]
-                if (c == 'P' && !isNearFirstDistanced(room, y, x)) return false
+    private fun isPlaceDistanced(place: Array<CharArray>): Boolean {
+        for (y in place.indices) {
+            for (x in place.indices) {
+                if (place[y][x] != 'P') continue
+                if (!isPersonDistanced(y, x, place)) return false
             }
         }
         return true
     }
 
-    // 맨해튼 거리 1 검사
-    private fun isNearFirstDistanced(room: Array<CharArray>, y: Int, x: Int): Boolean {
+    private fun isPersonDistanced(y: Int, x: Int, place: Array<CharArray>): Boolean {
         for (d in 0..3) {
             val ny = y + dy[d]
             val nx = x + dx[d]
 
-            if (ny < 0 || ny >= room.size || nx < 0 || nx >= room.size) continue
+            if (ny >= place.size || ny < 0 || nx >= place.size || nx < 0) return continue
 
-            val c = room[ny][nx]
-            when (c) {
+            when (place[ny][nx]) {
                 'P' -> return false
                 'O' -> {
                     val exclude = when (d) {
@@ -56,27 +46,23 @@ class Solution {
                         2 -> 3
                         else -> 2
                     }
-                    if (!isNearSecondDistanced(room, ny, nx, exclude)) return false
+                    if (isSpaceNextToPerson(ny, nx, exclude, place)) return false
                 }
             }
         }
         return true
     }
 
-    // 맨해튼 거리 2 검사
-    private fun isNearSecondDistanced(room: Array<CharArray>, y: Int, x: Int, exclude: Int): Boolean {
+    private fun isSpaceNextToPerson(y: Int, x: Int, exclude: Int, place: Array<CharArray>): Boolean {
         for (d in 0..3) {
             if (d == exclude) continue
 
             val ny = y + dy[d]
             val nx = x + dx[d]
 
-            if (ny < 0 || ny >= room.size || nx < 0 || nx >= room.size) continue
-
-            val c = room[ny][nx]
-            if (c == 'P') return false
+            if (ny >= place.size || ny < 0 || nx >= place.size || nx < 0) continue
+            if (place[ny][nx] == 'P') return true
         }
-
-        return true
+        return false
     }
 }
