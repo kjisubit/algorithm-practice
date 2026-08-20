@@ -1,15 +1,12 @@
 // [수식 최대화]
 
-// 우선 순위 목록은 재귀가 필요 없는 수준
+// [수식 최대화]
 
-// 프로세스
-// -- 연산자 우선순위 목록 생성
-// -- expression 토큰화
-// -- 연산자 우선순위 목록 순회
-// -- 토큰화 목록
-// -- 매 순회에서 연산자 마주칠 때마다 연산 진행
+// 1. 연산자 우선순위 목록 정의
+// 2. 우선순위 목록 순회하며 입력값의 연산 결과 조회
+// 3. 입력값을 토큰화화 한 후 리스트에 저장
 
-class Solution {
+class Solution020 {
     private val priorities = arrayOf(
         "*+-",
         "*-+",
@@ -19,47 +16,48 @@ class Solution {
         "-+*"
     )
 
-    private fun operate(lhs: Long, rhs: Long, op: String): Long {
-        return when (op) {
-            "*" -> lhs * rhs
-            "+" -> lhs + rhs
-            "-" -> lhs - rhs
-            else -> 0L
+    fun solution(expression: String): Long {
+        val regex = Regex("(?=[*+-])|(?<=[*+-])")
+        val tokens = expression.split(regex)
+
+        var max = Long.MIN_VALUE
+        for (priority in priorities) {
+            val result = calculate(tokens, priority)
+            if (result > max) max = result
         }
+
+        return max
     }
 
-    private fun calculate(tokens: MutableList<String>, operators: List<String>): Long {
-        for (op in operators) {
+    private fun calculate(tokens: List<String>, priority: String): Long {
+        val mutableTokens = tokens.toMutableList()
+        for (opChar in priority) {
             var i = 0
-            while (i <= tokens.size - 1) {
-                if (tokens[i] == op) {
-                    val lhs = tokens[i - 1].toLong()
-                    val rhs = tokens[i + 1].toLong()
-                    val result = operate(lhs, rhs, op)
-                    tokens.removeAt(i - 1)
-                    tokens.removeAt(i - 1)
-                    tokens.removeAt(i - 1)
-                    tokens.add(i - 1, result.toString())
+            while (i <= mutableTokens.size - 1) {
+                val token = mutableTokens[i]
+                val opString = opChar.toString()
+                if (token == opString) {
+                    val lhs = mutableTokens[i - 1].toLong()
+                    val rhs = mutableTokens[i + 1].toLong()
+                    val result = operate(token, lhs, rhs).toString()
+
+                    mutableTokens.removeAt(i - 1)
+                    mutableTokens.removeAt(i - 1)
+                    mutableTokens.removeAt(i - 1)
+                    mutableTokens.add(i - 1, result)
                 } else {
                     i++
                 }
             }
         }
-        return kotlin.math.abs(tokens[0].toLong())
+        return kotlin.math.abs(mutableTokens[0].toLong())
     }
 
-    fun solution(expression: String): Long {
-        var maxValue = Long.MIN_VALUE
-        val regex = Regex("(?=[*+-])|(?<=[*+-])")
-        val baseTokens = expression.split(regex).filter { it.isNotEmpty() }
-
-        for (priority in priorities) {
-            val mutableTokens = baseTokens.toMutableList()
-            val operators = priority.split("").filter { it.isNotEmpty() }
-            val result = calculate(mutableTokens, operators)
-            if (result > maxValue) maxValue = result
+    private fun operate(op: String, lhs: Long, rhs: Long): Long {
+        return when (op) {
+            "*" -> lhs * rhs
+            "+" -> lhs + rhs
+            else -> lhs - rhs
         }
-
-        return maxValue
     }
 }
