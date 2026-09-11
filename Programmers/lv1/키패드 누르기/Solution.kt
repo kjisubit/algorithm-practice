@@ -1,67 +1,65 @@
 // [키패드 누르기]
 
-// 숫자 입력으로부터 좌표 추출
-
 // Hand 클래스
-// -> 멤버: 현재 위치, 메인 손잡이 버프 여부
-// -> 메서드: 타겟으로부터의 거리, 이동
+// - 손가락 이동
+// - 목표와 손가락 사이의 거리 계산
 
-// 입력값 순회하며 손잡이 테스트
-
-import kotlin.math.*
+import kotlin.math.*;
 
 class Solution {
-    private class Hand(
-        var x: Int,
-        var y: Int = 3,
-        val isPreferred: Boolean,
-        val hand: String,
-        val preference: Float = if (isPreferred) 0.5f else 0f, // 주 생성자에서 바로 계산
-        val baseX: Int = x // 주 생성자에서 바로 할당
-    ) {
-        fun getDistance(x: Int, y: Int): Float {
-            if (x == baseX) return 0f
-            val distance = abs(x - this.x) + abs(y - this.y)
-            return distance - preference
-        }
-
-        fun move(x: Int, y: Int) {
+    private class Finger(var startX: Int, var x: Int, var y: Int = 3) {
+        fun moveFinger(x: Int, y: Int) {
             this.x = x
             this.y = y
         }
-    }
 
-    private fun press(num: Int, right: Hand, left: Hand): Hand {
-        val x = getX(num)
-        val y = getY(num)
+        fun getDistance(x: Int, y: Int): Int {
+            if (x == startX) return 0
 
-        val rDistance = right.getDistance(x, y)
-        val lDistance = left.getDistance(x, y)
-
-        var hand = right
-        if (lDistance < rDistance) {
-            hand = left
+            return abs(x - this.x) + abs(y - this.y)
         }
-        hand.move(x, y)
-        return hand;
     }
 
-    private fun getX(num: Int): Int {
-        if (num == 0) return 1
-        return (num - 1) % 3
-    }
+    private fun getCoordinates(n: Int): IntArray {
+        if (n == 0) return intArrayOf(1, 3)
 
-    private fun getY(num: Int): Int {
-        if (num == 0) return 3
-        return (num - 1) / 3
-    }
+        var x = if (n % 3 == 0) 2 else n % 3 - 1
+        var y = if (n % 3 == 0) n / 3 - 1 else n / 3
 
+        return intArrayOf(x, y)
+    }
 
     fun solution(numbers: IntArray, hand: String): String {
-        val right = Hand(x = 2, isPreferred = hand == "right", hand = "R")
-        val left = Hand(x = 0, isPreferred = hand == "left", hand = "L")
-        return numbers.map { n ->
-            press(n, right, left).hand
-        }.joinToString("")
+        val sb = StringBuilder()
+
+        val leftFinger = Finger(0, 0)
+        val rightFinger = Finger(2, 2)
+
+        numbers.forEach { n ->
+            val coordinates = getCoordinates(n)
+            val targetX = coordinates[0]
+            val targetY = coordinates[1]
+
+            val distanceFromLeft = leftFinger.getDistance(targetX, targetY)
+            val distanceFromRight = rightFinger.getDistance(targetX, targetY)
+
+            if (distanceFromLeft < distanceFromRight) {
+                leftFinger.moveFinger(targetX, targetY)
+                sb.append("L")
+            } else if (distanceFromLeft > distanceFromRight) {
+                rightFinger.moveFinger(targetX, targetY)
+                sb.append("R")
+            } else {
+                if (hand == "left") {
+                    leftFinger.moveFinger(targetX, targetY)
+                    sb.append("L")
+                } else {
+                    rightFinger.moveFinger(targetX, targetY)
+                    sb.append("R")
+                }
+            }
+        }
+
+        return sb.toString()
     }
 }
