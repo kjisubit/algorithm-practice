@@ -1,53 +1,44 @@
 // [보석 쇼핑]
 
-// 1. 투 포인터 사용하여 전 구간 확인 필요
-// 보석 종류가 모두 모아지는 구간을 갱신해야 함
+// start = 0, end = 0
+// 모든 보석이 보일 때까지 end++
+// 모든 보석이 보이면 start, end 갱신하고 start++ 반복
+// 보석이 한 종류라도 보이지 않을 경우 end++ 반복
+// 모든 보석이 보이면 start, end 갱신하고 start++ 반복
+// end == gems.size - 1 넘길 시 연산 중단
 
-// 2. map 으로 보석 개수 카운트
-
-// 3. 범위 탐색
-// end를 점점 늘린 후, 보석 종류 다 모았으면 start, end 기록
-// start를 점점 늘린 후, 보석 종류 다 모았으면 start, end 갱신
-// start를 늘리는 과정에서 보석 종류를 다 모으지 못할 경우, end 점점 늘리기
-// end가 끝자락에 도착할 때까지 위 과정 반복
+// 보석은 hashMap으로 관리
 
 class Solution {
     fun solution(gems: Array<String>): IntArray {
-        var previousStart = 0
-        var previousEnd = gems.size - 1
+        var answerStart = 0
+        var answerEnd = gems.size - 1
 
         var start = 0
         var end = 0
 
-        val gemHolder = mutableMapOf<String, Int>()
-        gemHolder[gems[start]] = 1
+        val gemBox = mutableMapOf<String, Int>()
+        gemBox[gems[start]] = 1
 
-        val gemSet = gems.toSet()
+        val gemTypeCount = gems.toSet().size
 
         while (true) {
-            if (gemHolder.keys.size == gemSet.size) {
-                val previousSize = previousEnd - previousStart
-                val currentSize = end - start
-
-                if (currentSize < previousSize) {
-                    previousStart = start
-                    previousEnd = end
-                }
-
-                gemHolder[gems[start]] = gemHolder[gems[start]]!! - 1
-                if (gemHolder[gems[start]] == 0) gemHolder.remove(gems[start])
-                start++
+            if (gemBox.keys.size != gemTypeCount) {
+                end++
+                if (end > gems.size - 1) break
+                gemBox[gems[end]] = (gemBox[gems[end]] ?: 0) + 1
             } else {
-                if (end < gems.size - 1) {
-                    end++
-                    gemHolder.putIfAbsent(gems[end], 0)
-                    gemHolder[gems[end]] = gemHolder[gems[end]]!! + 1
-                } else {
-                    break
+                if (end - start < answerEnd - answerStart) {
+                    answerEnd = end
+                    answerStart = start
                 }
+
+                gemBox[gems[start]] = (gemBox[gems[start]] ?: 0) - 1
+                if (gemBox[gems[start]] ?: 0 < 1) gemBox.remove(gems[start])
+                start++
             }
         }
 
-        return intArrayOf(previousStart + 1, previousEnd + 1)
+        return intArrayOf(answerStart + 1, answerEnd + 1)
     }
 }
