@@ -1,35 +1,38 @@
 // [체육복]
 
-// greedy 문제 -> 입력값에 대한 정렬이 필요함을 바로 인지할 수 있어야 하는 문제
+// 전체 학생 수 - 체육복을 빌리지 못한 학생 수
 
-// 1. reserve 학생 중 lost에 해당되는 학생 별도 관리 -> owned
-
-// 2. reserve 학생 중 lost에 해당되지 않는 학생 별도 관리 -> spare
-
-// 3. spare 순회하여 체육복 빌려주기
-// 매 순회마다 spare의 앞, 뒷 번호 구하기
-// 해당 번호가 owned가 아닌 경우, 앞 번호 우선적으로 greedy하게 빌려주고 owned에 추가
+// 체육복을 빌리지 못한 학생 수
+// -- lost 에서 reserve 제거하여 trueLost 추출
+// -- reserve 에서 lost 제거하여 trueReserve 추출
+// -- trueLost 순회하며 trueReserve 에서 체육복 빌려준 횟수 카운트 -> borrowedCount
+// -- trueLost - borrowedCount
 
 class Solution {
     fun solution(n: Int, lost: IntArray, reserve: IntArray): Int {
-        val lostSet = lost.toMutableSet()
-        val owned = reserve.filter { lostSet.contains(it) }.toMutableSet()
-        val spare = reserve.sorted().filter { !lostSet.contains(it) }
+        val reserve = reserve.toSet()
+        val trueLost = lost.sorted().filter { !reserve.contains(it) }
 
-        for (spareNum in spare) {
-            val pre = spareNum - 1
-            val post = spareNum + 1
+        val trueReserve = reserve.sorted().filter { !lost.contains(it) }.toMutableSet()
 
-            if (lostSet.contains(pre) && !owned.contains(pre)) {
-                owned.add(pre)
+        var borrowedCount = 0
+
+        for (i in trueLost) {
+            val left = i - 1
+            val right = i + 1
+
+            if (trueReserve.contains(left)) {
+                trueReserve.remove(left)
+                borrowedCount++
                 continue
             }
 
-            if (lostSet.contains(post) && !owned.contains(post)) {
-                owned.add(post)
+            if (trueReserve.contains(right)) {
+                trueReserve.remove(right)
+                borrowedCount++
             }
         }
 
-        return n - (lostSet.size - owned.size)
+        return n - (trueLost.size - borrowedCount)
     }
 }
