@@ -1,83 +1,81 @@
-// 전처리 필요
-// info 카테고리 분류 -> 4 * 3 * 3 * 3 = 108
-// 한 명의 지원자가 속할 수 있는 카테고리 -> 2^4 = 16
-// 한 카테고리에 속할 수 있는 최대 지원자 수 = 5000
+// [순위 검색]
 
-// 메서드 1 - 카테고리화
-// 메서드 2 - 메서드 2에서 호출할 카테고리 키 생성 재귀
-// 메서드 3 - 기준 점수 이상 지원자 카운트
-// 메서드 4 - 메서드 3에서 호출할 이진 탐색
+// info의 모든 데이터를 카테고리화하여 해시 테이블 탐색 가능한 구조로 변경
+// - MutableMap<String, MutableList<Int>>
+
+// query 에서 요구하는 카테고리에 속한 점수 들 중, query 점수가 어디에 위치해 있는지를 파라매트릭 써치로 검색
+// - x점 이상인 수 중에서 가장 작은 수가 가리키는 인덱스 찾기
+// - 전체 길이 - 가장 작은 수가 가리키는 인덱스 = x 점 이상인 지원자의 수
 
 class Solution {
     fun solution(info: Array<String>, query: Array<String>): IntArray {
-        val scoreMap = buildScoreMap(info)
+        val searchMap = buildSearchMap(info)
+
         val answer = IntArray(query.size)
-        for (i in query.indices) {
-            answer[i] = count(scoreMap, query[i])
+        query.forEachIndexed { i, q ->
+            answer[i] = count(searchMap, q)
         }
+
         return answer
     }
 
-    private fun buildScoreMap(info: Array<String>): MutableMap<String, MutableList<Int>> {
-        var scoreMap = mutableMapOf<String, MutableList<Int>>()
-        for (i in info) {
-            val tokens = i.split(" ")
-            val score = tokens.last().toInt()
-            val action: (String) -> Unit = { key: String ->
-                scoreMap.putIfAbsent(key, mutableListOf())
-                scoreMap[key]!!.add(score)
-            }
-            buildKey("", 0, tokens, action)
-        }
+    private fun count(searchMap: MutableMap<String, MutableList<Int>>, query: String): Int {
+        val regex = Regex("( and){0,} ")
+        val token = query.split(regex)
+        val queryKey = token.slice(0..3).joinToString("")
+        val score = token[4].toInt()
 
-        for (list in scoreMap.values) {
-            list.sort()
-        }
-        return scoreMap
+        if (searchMap[queryKey] == null) return 0
+        else return searchMap[queryKey]!!.size - getLowerBoundIndex(score, searchMap[queryKey]!!)
     }
 
-    private fun buildKey(prefix: String, index: Int, tokens: List<String>, action: (String) -> Unit) {
-        if (index == tokens.size - 1) {
-            action(prefix)
-            return
-        }
-
-        buildKey(prefix + tokens[index], index + 1, tokens, action)
-        buildKey(prefix + "-", index + 1, tokens, action)
-    }
-
-    private fun count(scoreMap: MutableMap<String, MutableList<Int>>, query: String): Int {
-        val regex = " (and )?".toRegex()
-        val tokens = query.split(regex)
-
-        val key = tokens.slice(0..tokens.size - 2).joinToString("")
-        val score = tokens.last().toInt()
-
-        val scores = scoreMap[key] ?: return 0
-
-        return scores.size - binarySearch(score, scores)
-    }
-
-    // score(target) 보다 크거나 같은 값 중 "가장 작은 값" 구하기 [start, end]
-    private fun binarySearch(target: Int, range: List<Int>): Int {
+    private fun getLowerBoundIndex(score: Int, scoreList: MutableList<Int>): Int {
         var start = 0
-        var end = range.size - 1
+        var end = scoreList.size - 1
 
-        // 원소가 한 개만 남을 때까지 반복
-        // [start, end] 원소 개수는 end - start + 1
         while (end - start + 1 > 1) {
-            val mid = (start + end) / 2
+            var mid = (start + end) / 2
 
-            if (range[mid] >= target) {
+            if (scoreList[mid] >= score) {
                 end = mid
             } else {
                 start = mid + 1
             }
         }
 
-        // score(target) 보다 크거나 같은 값 자체가 존재하지 않을 경우 예외 처리
-        if (range[start] < target) return range.size
+        if (scoreList[start] < score) return scoreList.size
 
         return start
+    }
+
+    private fun buildSearchMap(info: Array<String>): MutableMap<String, MutableList<Int>> {
+        val searchMap = mutableMapOf<String, MutableList<Int>>()
+
+        for (s in info) {
+            val tokens = s.split(" ")
+            val infos = tokens.slice(0..3)
+            val score = tokens[4].toInt()
+            val action: (String) -> Unit = { s ->
+                searchMap.putIfAbsent(s, mutableListOf<Int>())
+                searchMap[s]!!.add(score)
+            }
+            fillSearchMap(infos, "", 0, action)
+        }
+
+        searchMap.values.forEach {
+            it.sort()
+        }
+
+        return searchMap
+    }
+
+    private fun fillSearchMap(tokens: List<String>, prefix: String, index: Int, action: (String) -> Unit) {
+        if (index == 4) {
+            action(prefix)
+            return
+        }
+
+        fillSearchMap(tokens, prefix + tokens[index], index + 1, action)
+        fillSearchMap(tokens, prefix + "-", index + 1, action)
     }
 }
