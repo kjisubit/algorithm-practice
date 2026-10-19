@@ -1,33 +1,35 @@
 // [괄호 회전하기]
 
-// 0 until s.length 만큼 회전
-// 여는 괄호 확인될 때마다 짝이되는 괄호를 스택에 push
-// 닫는 괄호 확인될 때마다 해당 괄호를 스택에서 제거
+// 1. 문자열 돌리기
+// 매 케이스마다 오프셋 변경 (0 until s.length)
 
-class Solution {
+// 2. 각 케이스에 대한 올바른 괄호 생성 여부 판단
+// 문자열 순회하며 열린 괄호 만날 때마다 push 닫힌 괄호 만날 때마다 pop
+
+class Solution043 {
     fun solution(s: String): Int {
         var count = 0
-        for (i in 0 until s.length) {
-            val isPaired = isPaired(i, s)
-            if (isPaired) count++
+        for (offset in 0 until s.length) {
+            if (checkValidation(offset, s)) count++
         }
+
         return count
     }
 
-    private fun isPaired(offset: Int, s: String): Boolean {
-        val ad = ArrayDeque<Char>()
+    private fun checkValidation(offset: Int, s: String): Boolean {
+        var ad = ArrayDeque<Char>()
 
-        for (i in s.indices) {
+        for (i in 0 until s.length) {
             val index = (i + offset) % s.length
-            val char = s[index]
+            var c = s[index]
 
-            when (char) {
+            when (c) {
                 '(' -> ad.addLast(')')
-                '{' -> ad.addLast('}')
                 '[' -> ad.addLast(']')
-                ')', '}', ']' -> {
+                '{' -> ad.addLast('}')
+                else -> {
                     if (ad.isEmpty()) return false
-                    if (char != ad.removeLast()) return false
+                    if (c != ad.removeLast()) return false
                 }
             }
         }
